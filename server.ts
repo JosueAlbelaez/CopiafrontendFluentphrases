@@ -121,31 +121,6 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
   }
 });
 
-// Ruta para obtener las categorías disponibles
-app.get('/api/categories', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const user = req.user!;
-    const { language } = req.query;
-
-    const query: any = { language };
-    
-    // Para usuarios gratuitos, solo mostrar categorías gratuitas
-    if (user.role === 'free') {
-      query.category = { $in: FREE_CATEGORIES };
-    }
-
-    const categories = await Phrase.distinct('category', query);
-    
-    res.json({
-      categories,
-      userRole: user.role
-    });
-  } catch (error) {
-    console.error('Error al obtener categorías:', error);
-    res.status(500).json({ error: 'Error al obtener categorías' });
-  }
-});
-
 // Rutas de frases
 app.get('/api/phrases', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -180,11 +155,8 @@ app.get('/api/phrases', authenticateToken, async (req: Request, res: Response) =
       query.category = { $in: FREE_CATEGORIES };
     }
 
-    // Obtener 20 frases aleatorias que cumplan con los criterios
-    const phrases = await Phrase.aggregate([
-      { $match: query },
-      { $sample: { size: 20 } }
-    ]);
+    // Obtener todas las frases que cumplan con los criterios
+    const phrases = await Phrase.find(query);
 
     res.json({
       phrases,

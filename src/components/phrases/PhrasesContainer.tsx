@@ -5,49 +5,87 @@ import { PhraseProgress } from './PhraseProgress';
 import { UserCircle2, LogIn } from 'lucide-react';
 import { SignInForm } from '../auth/SignInForm';
 import { SignUpForm } from '../auth/SignUpForm';
+import { TableView } from './TableView';
+import { DefaultView } from './DefaultView';
+
+const TABLE_VIEW_CATEGORIES = [
+  '1000 Nouns',
+  'Adjectives and Adverbs',
+  'Prepositions and Conjunctions',
+  'Articles, Determiners and Interjections'
+];
 
 interface PhrasesContainerProps {
   language: string;
   category?: string;
-  children: (phrases: any[], incrementCount: () => void) => React.ReactNode;
 }
 
-export function PhrasesContainer({ language, category, children }: PhrasesContainerProps) {
+export function PhrasesContainer({ language, category }: PhrasesContainerProps) {
   const [showAuthModal, setShowAuthModal] = useState<'signin' | 'signup' | null>(null);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const { 
-    phrases, 
+    phrases: allPhrases, 
     isLoading, 
     dailyCount,
     incrementDailyCount,
     error,
     isAuthenticated,
-    userRole 
+    userRole,
+    refresh 
   } = usePhrases(language, category);
 
   const DAILY_LIMIT = 20;
-  const ITEMS_PER_PAGE = 10; // Reducido a 10 para mejor navegación
+  const ITEMS_PER_PAGE = 50;
   const isPremium = userRole === 'premium' || userRole === 'admin';
-  const totalPages = Math.ceil(phrases.length / ITEMS_PER_PAGE);
+
+  // Ordenar frases alfabéticamente si es una categoría de tabla
+  const sortedPhrases = TABLE_VIEW_CATEGORIES.includes(category || '')
+    ? [...allPhrases].sort((a, b) => a.targetText.localeCompare(b.targetText))
+    : allPhrases;
+
+  const totalPages = Math.ceil(sortedPhrases.length / ITEMS_PER_PAGE);
 
   useEffect(() => {
     setCurrentPage(0);
   }, [category, language]);
 
   const handlePhraseInteraction = async () => {
-    if (!isAuthenticated) {
-      setShowAuthModal('signin');
+    console.log('Iniciando interacción...');
+    if (isProcessing) {
+      console.log('Interacción bloqueada: isProcessing=true');
       return;
     }
+    
+    try {
+      setIsProcessing(true);
+      console.log('isProcessing establecido en true');
 
-    if (!isPremium && dailyCount >= DAILY_LIMIT) {
-      setShowLimitAlert(true);
-      return;
+      if (!isAuthenticated) {
+        console.log('Usuario no autenticado. Mostrando modal de autenticación...');
+        setShowAuthModal('signin');
+        return;
+      }
+
+      if (!isPremium && dailyCount >= DAILY_LIMIT) {
+        console.log('Límite diario alcanzado. Mostrando alerta...');
+        setShowLimitAlert(true);
+        return;
+      }
+
+      console.log('Incrementando contador diario...');
+      await incrementDailyCount(); // Incrementa el contador
+      console.log('Contador diario incrementado. Refrescando frases...');
+      await refresh(); // Refresca las frases
+      console.log('Frases refrescadas.');
+    } catch (error) {
+      console.error('Error en la interacción:', error);
+    } finally {
+      setIsProcessing(false);
+      console.log('isProcessing establecido en false');
     }
-
-    await incrementDailyCount();
   };
 
   const handleCloseModal = () => {
@@ -66,6 +104,7 @@ export function PhrasesContainer({ language, category, children }: PhrasesContai
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && newPage < totalPages) {
       setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -144,7 +183,7 @@ export function PhrasesContainer({ language, category, children }: PhrasesContai
     <div className="space-y-6">
       {!isPremium && (
         <div className="mb-6">
-          <PhraseProgress current={dailyCount} total={DAILY_LIMIT} />
+          <PhraseProgress current={dailyCount} total={DAILY_LIMIT} showTotal={true} />
         </div>
       )}
 
@@ -163,53 +202,25 @@ export function PhrasesContainer({ language, category, children }: PhrasesContai
         </div>
       ) : (
         <>
-          {category && phrases.length > 0 && (
-            <div className="mb-6 px-4">
-              <div className="flex flex-col space-y-2">
-                <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300">
-                  <span>Progreso de la categoría</span>
-                  <span>{phrases.length} frases en total</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                  <div
-                    className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${(currentPage * ITEMS_PER_PAGE + Math.min(ITEMS_PER_PAGE, phrases.length - currentPage * ITEMS_PER_PAGE)) / phrases.length * 100}%` 
-                    }}
-                  />
-                </div>
-                <div className="text-xs text-center text-gray-500 dark:text-gray-400">
-                  Mostrando {currentPage * ITEMS_PER_PAGE + 1} - {Math.min((currentPage + 1) * ITEMS_PER_PAGE, phrases.length)} de {phrases.length} frases
-                </div>
-              </div>
-            </div>
-          )}
-
-          {children(
-            phrases.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE),
-            handlePhraseInteraction
-          )}
-
-          {phrases.length > ITEMS_PER_PAGE && (
-            <div className="flex justify-center items-center gap-4 mt-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 0}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg disabled:opacity-50 hover:bg-green-700 transition-colors"
-              >
-                Anterior
-              </button>
-              <span className="text-sm font-medium">
-                Página {currentPage + 1} de {totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage >= totalPages - 1}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg disabled:opacity-50 hover:bg-green-700 transition-colors"
-              >
-                Siguiente
-              </button>
-            </div>
+          {TABLE_VIEW_CATEGORIES.includes(category || '') ? (
+            <TableView
+              phrases={sortedPhrases.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}
+              incrementCount={handlePhraseInteraction}
+              isDarkMode={document.documentElement.classList.contains('dark')}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isProcessing={isProcessing}
+            />
+          ) : (
+            <DefaultView
+              phrases={sortedPhrases}
+              incrementCount={handlePhraseInteraction}
+              isDarkMode={document.documentElement.classList.contains('dark')}
+              isProcessing={isProcessing}
+              language={language}
+              category={category}
+            />
           )}
         </>
       )}
