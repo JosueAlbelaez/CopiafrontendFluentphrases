@@ -4,6 +4,7 @@ import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { useTheme } from './contexts/ThemeContext';
 import { Header } from './components/Header';
 import { PhrasesContainer } from './components/phrases/PhrasesContainer';
+import { ToastContainer } from './hooks/use-toast'; // Importa el ToastContainer
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -52,8 +53,14 @@ function App() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token');
+    
+    if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
+    } else {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      setUser(null);
     }
   }, []);
 
@@ -62,9 +69,9 @@ function App() {
     localStorage.removeItem('user');
     setUser(null);
     window.location.reload();
+    localStorage.clear();
   };
 
-  // Efecto de máquina de escribir mejorado
   useEffect(() => {
     const text = 'Elige la categoría, practica, pronuncia, DIVIÉRTETE';
     let currentIndex = 0;
@@ -103,7 +110,7 @@ function App() {
 
       <main className="flex-grow">
         <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400' : 'text-gray-800'}`}>
+          <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
             <p className="text-lg font-bold min-h-[28px]">{typedText}</p>
           </div>
 
@@ -162,7 +169,9 @@ function App() {
         </div>
       </main>
 
-      <footer className="w-full bg-gray-900 text-gray-300 mt-8">
+      <ToastContainer /> {/* Renderiza el ToastContainer */}
+
+      <footer className={`w-full text-gray-300 mt-8 ${isDarkMode ? 'bg-gray-900' : 'bg-blue-700'}`}>
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Company Info */}
@@ -198,13 +207,13 @@ function App() {
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  <a href="mailto:Info@fluentphrases.com" className="hover:text-white transition-colors">
+                  <a href="mailto:contact@example.com" className="hover:text-white transition-colors">
                     Info@fluentphrases.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />
-                  <a href="tel:+541162908729" className="hover:text-white transition-colors">
+                  <a href="tel:+1234567890" className="hover:text-white transition-colors">
                     +54-1162908729
                   </a>
                 </li>

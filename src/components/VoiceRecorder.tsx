@@ -138,7 +138,7 @@ export default function VoiceRecorder({ targetPhrase, isDarkMode, resetKey, inli
         ) : (
           <>
             <Mic className="mr-1 w-4 h-4 md:mr-2 md:w-5 md:h-5" />
-            Pronunciar
+            Record
           </>
         )}
       </button>

@@ -19,8 +19,8 @@ type Action =
   | { type: "REMOVE_TOAST"; id: string };
 
 // Constants
-const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 3000;
+const TOAST_LIMIT = 3;
+const TOAST_REMOVE_DELAY = 10000;
 
 // Map for managing timeouts
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();

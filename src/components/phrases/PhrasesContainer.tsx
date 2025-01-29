@@ -12,7 +12,7 @@ const TABLE_VIEW_CATEGORIES = [
   '1000 Nouns',
   'Adjectives and Adverbs',
   'Prepositions and Conjunctions',
-  'Articles, Determiners and Interjections'
+  'Articles, Determiners and Interjections',
 ];
 
 interface PhrasesContainerProps {
@@ -25,86 +25,69 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const [showLimitAlert, setShowLimitAlert] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  
-  const { 
-    phrases: allPhrases, 
-    isLoading, 
+
+  const {
+    phrases: allPhrases,
+    isLoading,
     dailyCount,
     incrementDailyCount,
     error,
     isAuthenticated,
     userRole,
-    refresh 
   } = usePhrases(language, category);
 
   const DAILY_LIMIT = 20;
   const ITEMS_PER_PAGE = 50;
   const isPremium = userRole === 'premium' || userRole === 'admin';
 
-  // Ordenar frases alfabéticamente si es una categoría de tabla
-  const sortedPhrases = TABLE_VIEW_CATEGORIES.includes(category || '')
-    ? [...allPhrases].sort((a, b) => a.targetText.localeCompare(b.targetText))
-    : allPhrases;
+  const getRandomPhrases = (phrases: any[], count: number) => {
+    if (phrases.length <= count) return phrases;
+    const shuffled = [...phrases].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  };
 
-  const totalPages = Math.ceil(sortedPhrases.length / ITEMS_PER_PAGE);
+  let filteredPhrases =
+    category && category !== 'Todas las categorías'
+      ? allPhrases.filter((phrase) => phrase.category === category)
+      : allPhrases;
+
+  if (isPremium && category === 'Todas las categorías') {
+    filteredPhrases = getRandomPhrases(filteredPhrases, 10);
+  }
+
+  const totalPages = Math.ceil(filteredPhrases.length / ITEMS_PER_PAGE);
 
   useEffect(() => {
     setCurrentPage(0);
   }, [category, language]);
 
+  const handleAuthSuccess = () => {
+    setShowAuthModal(null);
+    // Aquí puedes agregar cualquier lógica adicional que necesites después del éxito de autenticación
+    window.location.reload(); // Recargar la página para actualizar el estado de autenticación
+  };
+
   const handlePhraseInteraction = async () => {
-    console.log('Iniciando interacción...');
-    if (isProcessing) {
-      console.log('Interacción bloqueada: isProcessing=true');
-      return;
-    }
-    
+    if (isProcessing) return;
+
     try {
       setIsProcessing(true);
-      console.log('isProcessing establecido en true');
 
       if (!isAuthenticated) {
-        console.log('Usuario no autenticado. Mostrando modal de autenticación...');
         setShowAuthModal('signin');
         return;
       }
 
       if (!isPremium && dailyCount >= DAILY_LIMIT) {
-        console.log('Límite diario alcanzado. Mostrando alerta...');
         setShowLimitAlert(true);
         return;
       }
 
-      console.log('Incrementando contador diario...');
-      await incrementDailyCount(); // Incrementa el contador
-      console.log('Contador diario incrementado. Refrescando frases...');
-      await refresh(); // Refresca las frases
-      console.log('Frases refrescadas.');
+      await incrementDailyCount();
     } catch (error) {
       console.error('Error en la interacción:', error);
     } finally {
       setIsProcessing(false);
-      console.log('isProcessing establecido en false');
-    }
-  };
-
-  const handleCloseModal = () => {
-    setShowAuthModal(null);
-  };
-
-  const handleAuthSuccess = () => {
-    handleCloseModal();
-    window.location.reload();
-  };
-
-  const handleSwitchAuth = () => {
-    setShowAuthModal(showAuthModal === 'signin' ? 'signup' : 'signin');
-  };
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 0 && newPage < totalPages) {
-      setCurrentPage(newPage);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -118,7 +101,8 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
               Inicia sesión o regístrate gratis
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-              Para acceder a todas las frases y comenzar a practicar, necesitas iniciar sesión o crear una cuenta gratuita.
+              Para acceder a todas las frases y comenzar a practicar, necesitas iniciar sesión o
+              crear una cuenta gratuita.
             </p>
           </div>
           <div className="flex gap-4">
@@ -138,42 +122,11 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
           </div>
         </div>
 
-        {showAuthModal && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-              {showAuthModal === 'signin' ? (
-                <>
-                  <SignInForm onAuthSuccess={handleAuthSuccess} />
-                  <div className="mt-4 text-center">
-                    <button
-                      onClick={handleSwitchAuth}
-                      className="text-green-600 hover:text-green-700 text-sm"
-                    >
-                      ¿No tienes cuenta? Regístrate aquí
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <SignUpForm onAuthSuccess={handleAuthSuccess} />
-                  <div className="mt-4 text-center">
-                    <button
-                      onClick={handleSwitchAuth}
-                      className="text-green-600 hover:text-green-700 text-sm"
-                    >
-                      ¿Ya tienes cuenta? Inicia sesión aquí
-                    </button>
-                  </div>
-                </>
-              )}
-              <button
-                onClick={handleCloseModal}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
+        {showAuthModal === 'signin' && (
+          <SignInForm onAuthSuccess={handleAuthSuccess} />
+        )}
+        {showAuthModal === 'signup' && (
+          <SignUpForm onAuthSuccess={handleAuthSuccess} />
         )}
       </>
     );
@@ -200,36 +153,34 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
             {typeof error === 'string' ? error : 'Error al cargar las frases'}
           </p>
         </div>
+      ) : filteredPhrases.length === 0 ? (
+        <div className="text-center p-8">
+          <p className="text-gray-600 dark:text-gray-400">No hay frases disponibles en esta categoría.</p>
+        </div>
+      ) : TABLE_VIEW_CATEGORIES.includes(category || '') ? (
+        <TableView
+          phrases={filteredPhrases}
+          incrementCount={handlePhraseInteraction}
+          isDarkMode={document.documentElement.classList.contains('dark')}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(newPage) => setCurrentPage(newPage)}
+          isProcessing={isProcessing}
+        />
       ) : (
-        <>
-          {TABLE_VIEW_CATEGORIES.includes(category || '') ? (
-            <TableView
-              phrases={sortedPhrases.slice(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE)}
-              incrementCount={handlePhraseInteraction}
-              isDarkMode={document.documentElement.classList.contains('dark')}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              isProcessing={isProcessing}
-            />
-          ) : (
-            <DefaultView
-              phrases={sortedPhrases}
-              incrementCount={handlePhraseInteraction}
-              isDarkMode={document.documentElement.classList.contains('dark')}
-              isProcessing={isProcessing}
-              language={language}
-              category={category}
-            />
-          )}
-        </>
+        <DefaultView
+          phrases={filteredPhrases}
+          incrementCount={handlePhraseInteraction}
+          isDarkMode={document.documentElement.classList.contains('dark')}
+          isProcessing={isProcessing}
+          language={language}
+          category={category}
+          showProgress={isPremium}
+        />
       )}
 
       {!isPremium && (
-        <FreeLimitAlert 
-          isOpen={showLimitAlert} 
-          onClose={() => setShowLimitAlert(false)} 
-        />
+        <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
       )}
     </div>
   );

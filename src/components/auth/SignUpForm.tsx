@@ -18,6 +18,55 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
     confirmPassword: '',
   });
 
+  const validateForm = () => {
+    if (!formData.firstName.trim()) {
+      toast({
+        title: "Error de validación",
+        description: "El nombre es requerido",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!formData.lastName.trim()) {
+      toast({
+        title: "Error de validación",
+        description: "El apellido es requerido",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!emailValidator(formData.email)) {
+      toast({
+        title: "Error de validación",
+        description: "Por favor ingresa un correo electrónico válido",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!passwordValidator(formData.password)) {
+      toast({
+        title: "Error de validación",
+        description: "La contraseña debe contener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Error de validación",
+        description: "Las contraseñas no coinciden",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -25,41 +74,44 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Validaciones
-      if (!emailValidator(formData.email)) {
-        throw new Error('Email inválido');
-      }
-      if (!passwordValidator(formData.password)) {
-        throw new Error('La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial');
-      }
-      if (formData.password !== formData.confirmPassword) {
-        throw new Error('Las contraseñas no coinciden');
-      }
-
       const response = await axios.post('/api/auth/signup', {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
         password: formData.password,
       });
 
       toast({
         title: "Registro exitoso",
-        description: "Cuenta creada exitosamente",
+        description: "¡Tu cuenta ha sido creada exitosamente!",
       });
 
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       onAuthSuccess();
 
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Error durante el registro",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        toast({
+          title: "Error de registro",
+          description: "Este correo electrónico ya está registrado",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Ha ocurrido un error durante el registro. Por favor, intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +180,7 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
             <p className="text-sm text-gray-500">
-              La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial
+              La contraseña debe contener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
             </p>
           </div>
 

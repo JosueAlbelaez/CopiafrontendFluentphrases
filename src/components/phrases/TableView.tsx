@@ -37,28 +37,38 @@ export function TableView({
 
   const renderPaginationButtons = () => (
     <div className="flex justify-center items-center gap-4">
-      <button
-        onClick={() => onPageChange?.(currentPage - 1)}
-        disabled={currentPage === 0 || isProcessing}
-        className={`px-6 py-2 ${
-          isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
-        } text-white rounded-lg disabled:opacity-50 transition-colors`}
-      >
-        Previous
-      </button>
-      <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-        Página {currentPage + 1} de {totalPages}
-      </span>
-      <button
-        onClick={() => onPageChange?.(currentPage + 1)}
-        disabled={currentPage >= totalPages - 1 || isProcessing}
-        className={`px-6 py-2 ${
-          isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
-        } text-white rounded-lg disabled:opacity-50 transition-colors`}
-      >
-        Next
-      </button>
-    </div>
+    <button
+      onClick={() => onPageChange?.(currentPage - 1)}
+      disabled={currentPage === 0 || isProcessing}
+      className={`px-4 py-1 
+        sm:px-6 sm:py-2 
+        md:px-8 md:py-3 
+        ${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'} 
+        text-white rounded-lg disabled:opacity-50 transition-colors`}
+    >
+      Previous
+    </button>
+    <span
+      className={`text-sm font-medium ${
+        isDarkMode ? 'text-gray-200' : 'text-gray-800'
+      }`}
+    >
+      Pág. {currentPage + 1} de {totalPages}
+    </span>
+    <button
+      onClick={() => onPageChange?.(currentPage + 1)}
+      disabled={currentPage >= totalPages - 1 || isProcessing}
+      className={`px-4 py-1 
+        sm:px-6 sm:py-2 
+        md:px-8 md:py-3 
+        ${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'} 
+        text-white rounded-lg disabled:opacity-50 transition-colors`}
+    >
+      Next
+    </button>
+  </div>
+  
+
   );
 
   return (
@@ -84,7 +94,7 @@ export function TableView({
                       } mb-1`}>
                         {phrase.targetText}
                       </p>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                         {phrase.translatedText}
                       </p>
                     </div>

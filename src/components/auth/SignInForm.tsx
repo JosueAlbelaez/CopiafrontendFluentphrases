@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator } from '@/lib/validators';
 import axios from 'axios';
-import { Link } from 'lucide-react';
 
 interface SignInFormProps {
   onAuthSuccess: () => void;
@@ -35,7 +34,13 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
 
     try {
       if (!emailValidator(formData.email)) {
-        throw new Error('Email inválido');
+        toast({
+          title: "Error de validación",
+          description: "Por favor ingresa un correo electrónico válido.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
       }
 
       const response = await axios.post('/api/auth/signin', {
@@ -43,48 +48,47 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         password: formData.password,
       });
 
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      toast({
-        title: "Inicio de sesión exitoso",
-        description: `Bienvenido, ${response.data.user.firstName}`
-      });
+        toast({
+          title: "Inicio de sesión exitoso",
+          description: `Bienvenido, ${response.data.user.firstName}`,
+        });
 
-      onAuthSuccess();
-
+        onAuthSuccess();
+      }
     } catch (error: any) {
-      let errorMessage = 'Error al iniciar sesión';
-      
+      console.log('Error completo:', error);
+
       if (error.response) {
-        switch (error.response.status) {
-          case 401:
-            if (error.response.data.error === 'Usuario no encontrado') {
-              toast({
-                title: "Usuario no encontrado",
-                description: "Tu correo no está registrado.",
-                variant: "destructive"
-              });
-              setTimeout(handleCreateAccount, 2000);
-              return;
-            } else {
-              toast({
-                title: "Contraseña incorrecta",
-                description: "¿Olvidaste tu contraseña?",
-                variant: "destructive"
-              });
-              setTimeout(handleResetPassword, 2000);
-              return;
-            }
-          default:
-            errorMessage = error.response.data.error || errorMessage;
+        const { status, data } = error.response;
+
+        if (status === 401) {
+          if (data.error === 'Usuario no encontrado') {
+            toast({
+              title: "Correo no registrado",
+              description: "¡Regístrate gratis y comienza ahora!",
+              variant: "destructive",
+            });
+            setTimeout(handleCreateAccount, 10000);
+          } else if (data.error === 'Contraseña incorrecta') {
+            toast({
+              title: "Contraseña incorrecta",
+              description: "Si la olvidaste, haz clic en 'Recuperar contraseña' para restablecerla.",
+              variant: "destructive",
+            });
+          }
+          return;
         }
       }
 
+      // Error genérico para cualquier otro caso
       toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
+        title: "Error de conexión",
+        description: "No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
