@@ -136,10 +136,10 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     }
 
     console.log('Usuario encontrado:', user._id);
-    const resetToken = generateToken({ userId: user._id }, '30m'); // Cambiado a 30 minutos
+    const resetToken = generateToken({ userId: user._id }, '30m');
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 1800000); // 30 minutos en milisegundos
+    user.resetPasswordExpires = new Date(Date.now() + 1800000); // 30 minutos
     await user.save();
     console.log('Token guardado en la base de datos');
 
@@ -152,9 +152,14 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
       });
     } catch (error) {
       console.error('Error al enviar el correo:', error);
-      res.status(500).json({ error: 'Error al enviar el correo' });
+      // Revertir los cambios en el usuario si el correo falla
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+      
+      throw new Error('Error al enviar el correo de recuperación');
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error en recuperación:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }

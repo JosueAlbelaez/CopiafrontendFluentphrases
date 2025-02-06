@@ -20,8 +20,8 @@ export function ForgotPasswordForm() {
 
       console.log('Enviando solicitud de recuperación para:', email);
       
-      const response = await axios.post('/api/auth/forgot-password', { 
-        email,
+      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { 
+        email 
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -42,19 +42,11 @@ export function ForgotPasswordForm() {
       
       const errorMessage = error.response?.data?.error || error.message;
       
-      if (errorMessage.includes('Usuario no encontrado')) {
-        toast({
-          title: "Error",
-          description: "El correo electrónico no está registrado en el sistema",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
