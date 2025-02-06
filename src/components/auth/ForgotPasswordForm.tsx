@@ -19,7 +19,7 @@ export function ForgotPasswordForm() {
       }
 
       console.log('Enviando solicitud de recuperación para:', email);
-      const response = await axios.post('/api/auth/forgot-password', { email });
+      const response = await axios.post('/api/forgot-password', { email });
       console.log('Respuesta del servidor:', response.data);
 
       toast({
@@ -81,4 +81,3 @@ export function ForgotPasswordForm() {
     </div>
   );
 }
-
