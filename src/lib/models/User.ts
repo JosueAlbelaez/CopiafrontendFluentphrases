@@ -1,7 +1,9 @@
-import mongoose, { Document, Model } from 'mongoose';
+
+import mongoose, { Document, Model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 interface IUser {
+  _id?: Types.ObjectId | string;
   firstName: string;
   lastName: string;
   email: string;
