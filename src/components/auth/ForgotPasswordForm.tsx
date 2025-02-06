@@ -3,22 +3,11 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { emailValidator } from '@/lib/validators';
-import { EmailConfigForm } from './EmailConfigForm';
-
-declare global {
-  interface Window {
-    emailConfig?: {
-      email: string;
-      password: string;
-    };
-  }
-}
 
 export function ForgotPasswordForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [isConfigured, setIsConfigured] = useState(!!window.emailConfig);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,14 +18,7 @@ export function ForgotPasswordForm() {
         throw new Error('Por favor ingresa un correo electrónico válido');
       }
 
-      if (!window.emailConfig) {
-        throw new Error('Es necesario configurar las credenciales de correo primero');
-      }
-
-      const response = await axios.post('/api/auth/forgot-password', { 
-        email,
-        emailConfig: window.emailConfig
-      });
+      const response = await axios.post('/api/auth/forgot-password', { email });
 
       toast({
         title: "Correo enviado",
@@ -64,10 +46,6 @@ export function ForgotPasswordForm() {
       setIsLoading(false);
     }
   };
-
-  if (!isConfigured) {
-    return <EmailConfigForm onConfigured={() => setIsConfigured(true)} />;
-  }
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">

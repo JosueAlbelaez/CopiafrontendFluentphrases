@@ -5,6 +5,8 @@ import { generateToken } from '@/lib/utils/jwt';
 import nodemailer from 'nodemailer';
 
 const FRONTEND_URL = 'http://localhost:8080';
+const EMAIL_USER = 'info.fluentphrases@gmail.com';
+const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -14,11 +16,7 @@ export default async function handler(req: any, res: any) {
   try {
     await connectDB();
 
-    const { email, emailConfig } = req.body;
-
-    if (!emailConfig?.email || !emailConfig?.password) {
-      return res.status(400).json({ error: 'Credenciales de correo no proporcionadas' });
-    }
+    const { email } = req.body;
 
     const user = await User.findOne({ email });
 
@@ -32,19 +30,18 @@ export default async function handler(req: any, res: any) {
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hora
     await user.save();
 
-    // Configurar transporter con las credenciales proporcionadas
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: emailConfig.email,
-        pass: emailConfig.password
+        user: EMAIL_USER,
+        pass: EMAIL_PASSWORD
       }
     });
 
     const resetUrl = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: emailConfig.email,
+      from: EMAIL_USER,
       to: email,
       subject: 'Restablecer contraseña',
       html: `
