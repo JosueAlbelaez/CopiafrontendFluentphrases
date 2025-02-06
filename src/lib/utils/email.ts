@@ -5,11 +5,23 @@ const EMAIL_USER = 'info.fluentphrases@gmail.com';
 const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
+// Crear el transporter con logs detallados
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASSWORD
+  },
+  debug: true, // Habilitar logs detallados
+  logger: true // Habilitar logger
+});
+
+// Verificar la conexión al iniciar
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('Error al verificar el transporter:', error);
+  } else {
+    console.log('Servidor listo para enviar correos');
   }
 });
 
@@ -38,11 +50,13 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   };
 
   try {
-    console.log('Attempting to send verification email to:', email);
-    await transporter.sendMail(mailOptions);
-    console.log('Verification email sent successfully');
+    console.log('Intentando enviar correo de verificación a:', email);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Correo de verificación enviado:', info.response);
+    console.log('ID del mensaje:', info.messageId);
+    console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    console.error('Error detallado al enviar correo de verificación:', error);
     throw error;
   }
 };
@@ -52,7 +66,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   console.log('Reset URL:', resetUrl);
 
   const mailOptions = {
-    from: EMAIL_USER,
+    from: `Fluent Phrases <${EMAIL_USER}>`,
     to: email,
     subject: 'Restablecer contraseña',
     html: `
@@ -73,11 +87,14 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   };
 
   try {
-    console.log('Attempting to send password reset email to:', email);
-    await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent successfully');
+    console.log('Intentando enviar correo de recuperación a:', email);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Correo de recuperación enviado:', info.response);
+    console.log('ID del mensaje:', info.messageId);
+    console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error('Error detallado al enviar correo de recuperación:', error);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
 };
