@@ -1,5 +1,5 @@
 
-import mongoose, { Document, Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 interface IUser {
@@ -88,3 +88,4 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
 };
 
 export const User = mongoose.models.User || mongoose.model<IUser, UserModel>('User', userSchema);
+
