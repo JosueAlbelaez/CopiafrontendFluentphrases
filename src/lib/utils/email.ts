@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verificar la conexión al iniciar
-transporter.verify(function(error, success) {
+transporter.verify(function(error) {
   if (error) {
     console.error('Error al verificar el transporter:', error);
   } else {
@@ -92,7 +92,8 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     console.log('Correo de recuperación enviado:', info.response);
     console.log('ID del mensaje:', info.messageId);
     console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Error detallado al enviar correo de recuperación:', error);
     console.error('Stack trace:', error.stack);
     throw error;
