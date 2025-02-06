@@ -23,10 +23,6 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCreateAccount = () => {
-    navigate('/signup');
-  };
-
   const handleResetPassword = () => {
     navigate('/forgot-password');
   };
@@ -51,10 +47,6 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
       const response = await axios.post('/api/auth/signin', {
         email: formData.email,
         password: formData.password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
       });
 
       console.log('Respuesta del servidor:', response.data);
