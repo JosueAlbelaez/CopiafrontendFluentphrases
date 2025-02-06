@@ -47,9 +47,11 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
       const response = await axios.post('/api/auth/signin', {
         email: formData.email,
         password: formData.password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
-
-      console.log('Respuesta del servidor:', response.data);
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
