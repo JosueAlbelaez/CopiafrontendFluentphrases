@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { passwordValidator } from '@/lib/validators';
+import axios from 'axios';
 
 export function ResetPasswordForm() {
   const { toast } = useToast();
@@ -29,19 +30,11 @@ export function ResetPasswordForm() {
         throw new Error('Token no proporcionado');
       }
 
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, password }),
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await axios.post(`${API_URL}/api/auth/reset-password`, {
+        token,
+        password
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al restablecer la contraseña');
-      }
 
       toast({
         title: "Contraseña actualizada",
@@ -50,10 +43,10 @@ export function ResetPasswordForm() {
 
       navigate('/');
 
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Error al actualizar la contraseña",
+        description: error.response?.data?.error || error.message || "Error al actualizar la contraseña",
         variant: "destructive",
       });
     } finally {

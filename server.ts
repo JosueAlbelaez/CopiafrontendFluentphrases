@@ -1,3 +1,4 @@
+importtypescript
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './src/lib/config/db';
@@ -8,6 +9,7 @@ import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { sendPasswordResetEmail } from './src/lib/utils/email';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -155,6 +157,43 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.error('Error en recuperación:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Nueva ruta para restablecer contraseña
+app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token y contraseña son requeridos' });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.userId) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const user = await User.findOne({
+      _id: decoded.userId,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error en restablecimiento de contraseña:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
