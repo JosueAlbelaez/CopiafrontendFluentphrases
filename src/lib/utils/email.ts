@@ -1,24 +1,22 @@
-
 import nodemailer from 'nodemailer';
 
 const EMAIL_USER = 'info.fluentphrases@gmail.com';
 const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
+const FRONTEND_URL = 'http://localhost:8080'; // Forzamos el valor para desarrollo
 
 console.log('Configurando transporter con:', {
   user: EMAIL_USER,
   frontendUrl: FRONTEND_URL
 });
 
-// Crear el transporter con logs detallados
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASSWORD
   },
-  debug: true, // Habilitar logs detallados
-  logger: true // Habilitar logger
+  debug: true,
+  logger: true
 });
 
 // Verificar la conexión al iniciar
@@ -75,9 +73,9 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   console.log('Generando URL de recuperación:', resetUrl);
 
   const mailOptions = {
-    from: `Fluent Phrases <${EMAIL_USER}>`,
+    from: EMAIL_USER,
     to: email,
-    subject: 'Restablecer contraseña',
+    subject: 'Restablecer contraseña - Fluent Phrases',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #2b6cb0;">Restablecer contraseña</h1>
@@ -96,18 +94,16 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   };
 
   try {
-    console.log('Intentando enviar correo de recuperación a:', email);
+    console.log('Intentando enviar correo a:', email);
     console.log('Opciones de correo:', JSON.stringify(mailOptions, null, 2));
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('Respuesta del servidor de correo:', info.response);
+    console.log('Respuesta del servidor:', info.response);
     console.log('ID del mensaje:', info.messageId);
-    console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
     return info;
-  } catch (err) {
-    const error = err as Error;
-    console.error('Error detallado al enviar correo de recuperación:', error);
+  } catch (error: any) {
+    console.error('Error al enviar correo:', error);
     console.error('Stack trace:', error.stack);
     throw error;
   }
-};
+}

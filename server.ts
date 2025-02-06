@@ -7,6 +7,7 @@ import { generateToken, verifyToken } from './src/lib/utils/jwt';
 import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import { sendPasswordResetEmail } from './src/lib/utils/email';
 
 dotenv.config();
 
@@ -117,6 +118,43 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error en inicio de sesión:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Nueva ruta para recuperación de contraseña
+app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    console.log('Recibida solicitud de recuperación para:', email);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log('Usuario no encontrado:', email);
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    console.log('Usuario encontrado:', user._id);
+    const resetToken = generateToken({ userId: user._id }, '1h');
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hora
+    await user.save();
+    console.log('Token guardado en la base de datos');
+
+    try {
+      const emailInfo = await sendPasswordResetEmail(email, resetToken);
+      console.log('Correo enviado exitosamente:', emailInfo);
+      res.json({
+        message: 'Se ha enviado un correo con las instrucciones',
+        debug: emailInfo
+      });
+    } catch (error) {
+      console.error('Error al enviar el correo:', error);
+      res.status(500).json({ error: 'Error al enviar el correo' });
+    }
+  } catch (error) {
+    console.error('Error en recuperación:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
