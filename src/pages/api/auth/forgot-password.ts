@@ -2,11 +2,9 @@
 import { connectDB } from '@/lib/config/db';
 import { User } from '@/lib/models/User';
 import { generateToken } from '@/lib/utils/jwt';
-import nodemailer from 'nodemailer';
+import { sendPasswordResetEmail } from '@/lib/utils/email';
 
-const FRONTEND_URL = 'http://localhost:8080';
-const EMAIL_USER = 'info.fluentphrases@gmail.com';
-const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -17,55 +15,38 @@ export default async function handler(req: any, res: any) {
     await connectDB();
 
     const { email } = req.body;
+    console.log('Attempting password reset for email:', email);
 
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log('User not found for email:', email);
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
     const resetToken = generateToken({ userId: user._id }, '1h');
+    console.log('Generated reset token');
     
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hora
     await user.save();
+    console.log('Updated user with reset token');
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: EMAIL_USER,
-        pass: EMAIL_PASSWORD
-      }
-    });
-
-    const resetUrl = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
-
-    const mailOptions = {
-      from: EMAIL_USER,
-      to: email,
-      subject: 'Restablecer contraseña',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #2b6cb0;">Restablecer contraseña</h1>
-          <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" 
-               style="background-color: #48bb78; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Restablecer contraseña
-            </a>
-          </div>
-          <p style="color: #718096; font-size: 14px;">Este enlace expirará en 1 hora.</p>
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-          <p style="color: #718096; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
-        </div>
-      `
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.json({ message: 'Se ha enviado un correo con las instrucciones para restablecer tu contraseña' });
-  } catch (error) {
+    try {
+      await sendPasswordResetEmail(email, resetToken);
+      console.log('Password reset email sent successfully');
+      res.json({ message: 'Se ha enviado un correo con las instrucciones para restablecer tu contraseña' });
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
+      // Revertir los cambios en el usuario si el correo falla
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+      
+      throw new Error('Error al enviar el correo de recuperación');
+    }
+  } catch (error: any) {
     console.error('Error en recuperación de contraseña:', error);
-    res.status(500).json({ error: 'Error en el servidor' });
+    res.status(500).json({ error: error.message || 'Error en el servidor' });
   }
 }

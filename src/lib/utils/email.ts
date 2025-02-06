@@ -1,15 +1,9 @@
+
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
-const FRONTEND_URL = process.env.FRONTEND_URL;
-
-if (!EMAIL_USER || !EMAIL_PASSWORD) {
-  console.warn('Advertencia: Credenciales de correo no configuradas');
-}
+const EMAIL_USER = 'info.fluentphrases@gmail.com';
+const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -20,11 +14,6 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  if (!EMAIL_USER || !EMAIL_PASSWORD) {
-    console.warn('No se puede enviar correo: credenciales no configuradas');
-    return;
-  }
-
   const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
   
   const mailOptions = {
@@ -49,21 +38,18 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   };
 
   try {
+    console.log('Attempting to send verification email to:', email);
     await transporter.sendMail(mailOptions);
-    console.log('Correo de verificación enviado a:', email);
+    console.log('Verification email sent successfully');
   } catch (error) {
-    console.error('Error al enviar correo de verificación:', error);
+    console.error('Error sending verification email:', error);
     throw error;
   }
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  if (!EMAIL_USER || !EMAIL_PASSWORD) {
-    console.warn('No se puede enviar correo: credenciales no configuradas');
-    return;
-  }
-
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+  console.log('Reset URL:', resetUrl);
 
   const mailOptions = {
     from: EMAIL_USER,
@@ -87,10 +73,11 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   };
 
   try {
+    console.log('Attempting to send password reset email to:', email);
     await transporter.sendMail(mailOptions);
-    console.log('Correo de restablecimiento enviado a:', email);
+    console.log('Password reset email sent successfully');
   } catch (error) {
-    console.error('Error al enviar correo de restablecimiento:', error);
+    console.error('Error sending password reset email:', error);
     throw error;
   }
 };
