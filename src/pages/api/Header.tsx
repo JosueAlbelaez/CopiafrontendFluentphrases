@@ -28,7 +28,11 @@ export function Header({ user, onLogout }: HeaderProps) {
             <img src={logo} alt="Logo" className="w-12 h-12 md:w-16 md:h-16" />
             <button
               onClick={() => window.location.href = '/'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-green-500 text-primary-foreground hover:bg-green-700 transition-colors`}
+              className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-lg ${
+                isDarkMode
+                  ? 'bg-gray-800 hover:bg-gray-700'
+                  : 'bg-blue-400 hover:bg-blue-300'
+              } text-white transition-colors`}
             >
               <Home className="w-4 h-4" />
               <span>Inicio</span>
@@ -111,13 +115,17 @@ export function Header({ user, onLogout }: HeaderProps) {
             </button>
 
             {user && onLogout && (
-              <button
-                onClick={onLogout}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors w-full"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Cerrar sesión</span>
-              </button>
+             
+
+                  <button
+                  onClick={onLogout}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-700 transition-colors"
+                  >
+                  <LogOut className="w-4 h-4" />
+                  <span>Cerrar sesión</span>
+                  </button>
+
+
             )}
           </div>
         )}
