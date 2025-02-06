@@ -1,6 +1,8 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator } from '@/lib/validators';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 interface SignInFormProps {
@@ -9,6 +11,7 @@ interface SignInFormProps {
 
 export function SignInForm({ onAuthSuccess }: SignInFormProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -21,11 +24,11 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
   };
 
   const handleCreateAccount = () => {
-    window.location.href = '/signup';
+    navigate('/signup');
   };
 
   const handleResetPassword = () => {
-    window.location.href = '/reset-password';
+    navigate('/forgot-password');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,7 +87,6 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         }
       }
 
-      // Error genérico para cualquier otro caso
       toast({
         title: "Error de conexión",
         description: "No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.",
