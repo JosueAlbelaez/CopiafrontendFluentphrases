@@ -5,6 +5,11 @@ const EMAIL_USER = 'info.fluentphrases@gmail.com';
 const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
+console.log('Configurando transporter con:', {
+  user: EMAIL_USER,
+  frontendUrl: FRONTEND_URL
+});
+
 // Crear el transporter con logs detallados
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -27,6 +32,7 @@ transporter.verify(function(error) {
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
+  console.log('URL de verificación generada:', verificationUrl);
   
   const mailOptions = {
     from: EMAIL_USER,
@@ -55,15 +61,18 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     console.log('Correo de verificación enviado:', info.response);
     console.log('ID del mensaje:', info.messageId);
     console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
-  } catch (error) {
+    return info;
+  } catch (err) {
+    const error = err as Error;
     console.error('Error detallado al enviar correo de verificación:', error);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
-  console.log('Reset URL:', resetUrl);
+  console.log('Generando URL de recuperación:', resetUrl);
 
   const mailOptions = {
     from: `Fluent Phrases <${EMAIL_USER}>`,
@@ -88,10 +97,13 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
 
   try {
     console.log('Intentando enviar correo de recuperación a:', email);
+    console.log('Opciones de correo:', JSON.stringify(mailOptions, null, 2));
+    
     const info = await transporter.sendMail(mailOptions);
-    console.log('Correo de recuperación enviado:', info.response);
+    console.log('Respuesta del servidor de correo:', info.response);
     console.log('ID del mensaje:', info.messageId);
     console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
+    return info;
   } catch (err) {
     const error = err as Error;
     console.error('Error detallado al enviar correo de recuperación:', error);
