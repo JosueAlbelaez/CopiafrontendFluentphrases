@@ -8,6 +8,7 @@ import { PhrasesContainer } from './components/phrases/PhrasesContainer';
 import { ToastContainer } from './hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Route, Routes } from 'react-router-dom';
+import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -114,6 +115,7 @@ function App() {
       <main className="flex-grow">
         <Routes>
           <Route path="/reset-password" element={<ResetPasswordForm />} />
+          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
           <Route path="/" element={
             <div className="max-w-4xl mx-auto px-4 py-8">
               <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
