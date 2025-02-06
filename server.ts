@@ -135,10 +135,10 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     }
 
     console.log('Usuario encontrado:', user._id);
-    const resetToken = generateToken({ userId: user._id }, '1h');
+    const resetToken = generateToken({ userId: user._id }, '30m'); // Cambiado a 30 minutos
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hora
+    user.resetPasswordExpires = new Date(Date.now() + 1800000); // 30 minutos en milisegundos
     await user.save();
     console.log('Token guardado en la base de datos');
 

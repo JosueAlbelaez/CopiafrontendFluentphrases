@@ -1,32 +1,54 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import { passwordValidator } from '@/lib/validators';
 
 export function ResetPasswordForm() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      if (password !== confirmPassword) {
+        throw new Error('Las contraseñas no coinciden');
+      }
+
       if (!passwordValidator(password)) {
         throw new Error('La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial');
       }
 
-      const { error } = await supabase.auth.updateUser({
-        password: password,
+      const token = new URLSearchParams(window.location.search).get('token');
+      if (!token) {
+        throw new Error('Token no proporcionado');
+      }
+
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, password }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al restablecer la contraseña');
+      }
 
       toast({
         title: "Contraseña actualizada",
         description: "Tu contraseña ha sido actualizada exitosamente",
       });
+
+      navigate('/');
 
     } catch (error) {
       toast({
@@ -54,6 +76,20 @@ export function ResetPasswordForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirmar contraseña
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
             <p className="text-sm text-gray-500">

@@ -1,8 +1,9 @@
+
 import nodemailer from 'nodemailer';
 
 const EMAIL_USER = 'info.fluentphrases@gmail.com';
 const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
-const FRONTEND_URL = 'http://localhost:8080'; // Forzamos el valor para desarrollo
+const FRONTEND_URL = 'http://localhost:8080';
 
 console.log('Configurando transporter con:', {
   user: EMAIL_USER,
@@ -86,7 +87,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
             Restablecer contraseña
           </a>
         </div>
-        <p style="color: #718096; font-size: 14px;">Este enlace expirará en 1 hora.</p>
+        <p style="color: #718096; font-size: 14px;">Este enlace expirará en 30 minutos.</p>
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
         <p style="color: #718096; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
       </div>
