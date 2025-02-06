@@ -148,7 +148,7 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
             {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
-          <div className="text-center">
+          <div className="text-center mt-4">
             <button
               type="button"
               onClick={handleResetPassword}
