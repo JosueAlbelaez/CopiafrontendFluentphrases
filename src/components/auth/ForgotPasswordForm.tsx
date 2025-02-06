@@ -19,7 +19,14 @@ export function ForgotPasswordForm() {
       }
 
       console.log('Enviando solicitud de recuperación para:', email);
-      const response = await axios.post('/api/auth/forgot-password', { email });
+      const response = await axios.post('/api/auth/forgot-password', { 
+        email,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
       console.log('Respuesta del servidor:', response.data);
 
       toast({
@@ -30,6 +37,8 @@ export function ForgotPasswordForm() {
       setEmail('');
     } catch (error: any) {
       console.error('Error detallado:', error);
+      console.error('Response data:', error.response?.data);
+      
       const errorMessage = error.response?.data?.error || error.message;
       
       if (errorMessage.includes('Usuario no encontrado')) {

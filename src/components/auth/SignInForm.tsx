@@ -46,10 +46,18 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         return;
       }
 
+      console.log('Intentando iniciar sesión con:', formData.email);
+      
       const response = await axios.post('/api/auth/signin', {
         email: formData.email,
         password: formData.password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
+
+      console.log('Respuesta del servidor:', response.data);
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
@@ -63,7 +71,8 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         onAuthSuccess();
       }
     } catch (error: any) {
-      console.log('Error completo:', error);
+      console.error('Error completo:', error);
+      console.error('Response data:', error.response?.data);
 
       if (error.response) {
         const { status, data } = error.response;
@@ -75,7 +84,6 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
               description: "¡Regístrate gratis y comienza ahora!",
               variant: "destructive",
             });
-            setTimeout(handleCreateAccount, 10000);
           } else if (data.error === 'Contraseña incorrecta') {
             toast({
               title: "Contraseña incorrecta",
