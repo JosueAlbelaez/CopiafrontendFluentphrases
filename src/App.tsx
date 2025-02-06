@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -6,7 +7,7 @@ import { Header } from './components/Header';
 import { PhrasesContainer } from './components/phrases/PhrasesContainer';
 import { ToastContainer } from './hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -181,7 +182,6 @@ function App() {
       <footer className={`w-full text-gray-300 mt-8 ${isDarkMode ? 'bg-gray-900' : 'bg-blue-700'}`}>
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Company Info */}
             <div className="space-y-4">
               <img src={logo} alt="Logo" className="w-24 h-24"/>
               <p className="text-sm">
@@ -189,7 +189,6 @@ function App() {
               </p>
             </div>
 
-            {/* Quick Links */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-white">Enlaces Rápidos</h3>
               <ul className="space-y-2">
@@ -208,7 +207,6 @@ function App() {
               </ul>
             </div>
 
-            {/* Contact Info */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-white">Contacto</h3>
               <ul className="space-y-2">
@@ -231,7 +229,6 @@ function App() {
               </ul>
             </div>
 
-            {/* Social Media & Newsletter */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-white">Síguenos</h3>
               <div className="flex space-x-4 mb-6">
@@ -269,7 +266,6 @@ function App() {
             </div>
           </div>
 
-          {/* Bottom Bar */}
           <div className="border-t border-gray-800 mt-8 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="text-sm">
