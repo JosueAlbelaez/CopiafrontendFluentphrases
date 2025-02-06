@@ -44,7 +44,7 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
 
       console.log('Intentando iniciar sesión con:', formData.email);
       
-      const response = await axios.post('/api/auth/signin', {
+      const response = await axios.post('http://localhost:5000/api/auth/signin', {
         email: formData.email,
         password: formData.password,
       }, {
@@ -52,6 +52,8 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
           'Content-Type': 'application/json',
         }
       });
+
+      console.log('Respuesta del servidor:', response.data);
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
@@ -81,7 +83,7 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
           } else if (data.error === 'Contraseña incorrecta') {
             toast({
               title: "Contraseña incorrecta",
-              description: "Si la olvidaste, haz clic en 'Recuperar contraseña' para restablecerla.",
+              description: "Si olvidaste tu contraseña, haz clic en 'Recuperar contraseña' para restablecerla.",
               variant: "destructive",
             });
           }
