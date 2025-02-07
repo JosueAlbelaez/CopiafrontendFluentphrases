@@ -103,7 +103,7 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
     }
 
     console.log('Usuario encontrado, verificando contraseña');
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await user.comparePassword(password);
     
     if (!isValidPassword) {
       console.log('Contraseña incorrecta para usuario:', email);

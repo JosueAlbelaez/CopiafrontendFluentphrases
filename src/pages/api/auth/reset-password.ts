@@ -36,12 +36,8 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Hash the password using the same method as in the User model
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Actualizar la contraseña y limpiar los tokens
-    user.password = hashedPassword;
+    // Actualizar la contraseña dejando que el middleware del modelo User haga el hash
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     
