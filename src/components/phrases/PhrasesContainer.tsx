@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { usePhrases } from '@/lib/hooks/usePhrases';
 import { FreeLimitAlert } from './FreeLimitAlert';
@@ -7,6 +8,7 @@ import { SignInForm } from '../auth/SignInForm';
 import { SignUpForm } from '../auth/SignUpForm';
 import { TableView } from './TableView';
 import { DefaultView } from './DefaultView';
+import { PricingModal } from '../subscription/PricingModal';
 
 const TABLE_VIEW_CATEGORIES = [
   '1000 Nouns',
@@ -23,6 +25,7 @@ interface PhrasesContainerProps {
 export function PhrasesContainer({ language, category }: PhrasesContainerProps) {
   const [showAuthModal, setShowAuthModal] = useState<'signin' | 'signup' | null>(null);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -39,6 +42,14 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const DAILY_LIMIT = 20;
   const ITEMS_PER_PAGE = 50;
   const isPremium = userRole === 'premium' || userRole === 'admin';
+  const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
+
+  useEffect(() => {
+    // Mostrar el modal de precios si la categoría no es gratuita y el usuario no es premium
+    if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
+      setShowPricingModal(true);
+    }
+  }, [category, isPremium, isAuthenticated]);
 
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
@@ -63,8 +74,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
-    // Aquí puedes agregar cualquier lógica adicional que necesites después del éxito de autenticación
-    window.location.reload(); // Recargar la página para actualizar el estado de autenticación
+    window.location.reload();
   };
 
   const handlePhraseInteraction = async () => {
@@ -180,7 +190,10 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
       )}
 
       {!isPremium && (
-        <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
+        <>
+          <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
+          <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
+        </>
       )}
     </div>
   );

@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PricingCard } from "./PricingCard";
-import { createPreference } from "@/lib/mercadopago";
 
 const plans = [
   {
@@ -59,13 +58,24 @@ export function PricingPlans() {
         throw new Error("Plan no encontrado");
       }
 
-      const checkoutUrl = await createPreference(
-        selectedPlan.title,
-        selectedPlan.price,
-        'USD'
-      );
+      const response = await fetch('/api/create-preference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: selectedPlan.title,
+          price: selectedPlan.price,
+          currency: 'USD'
+        }),
+      });
 
-      window.location.href = checkoutUrl;
+      if (!response.ok) {
+        throw new Error('Error al crear la preferencia de pago');
+      }
+
+      const data = await response.json();
+      window.location.href = data.init_point;
 
     } catch (error) {
       console.error('Error al procesar el pago:', error);
@@ -81,12 +91,6 @@ export function PricingPlans() {
 
   return (
     <div className="container mx-auto py-12 px-4">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Planes de Suscripción</h2>
-        <p className="text-gray-600">
-          Elige el plan que mejor se adapte a tus necesidades
-        </p>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {plans.map((plan) => (
           <PricingCard
