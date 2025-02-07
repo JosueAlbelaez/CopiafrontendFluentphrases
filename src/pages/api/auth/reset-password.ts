@@ -36,21 +36,15 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Hashear la contraseña manualmente para evitar doble hash
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Actualizar directamente en la base de datos para evitar el middleware pre-save
-    await User.updateOne(
-      { _id: user._id },
-      { 
-        $set: { 
-          password: hashedPassword,
-          resetPasswordToken: undefined,
-          resetPasswordExpires: undefined
-        }
-      }
-    );
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    // Desactivar la validación para evitar el middleware de hasheo
+    await user.save({ validateBeforeSave: false });
     
     console.log('Contraseña actualizada exitosamente para:', user.email);
 

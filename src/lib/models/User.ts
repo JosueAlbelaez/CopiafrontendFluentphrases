@@ -87,12 +87,14 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   console.log('Comparando contraseñas en método comparePassword');
   try {
+    console.log('Password almacenado:', this.password);
+    console.log('Password candidato:', candidatePassword);
     const isMatch = await bcrypt.compare(candidatePassword, this.password);
     console.log('¿Contraseñas coinciden?:', isMatch);
     return isMatch;
   } catch (error) {
     console.error('Error al comparar contraseñas:', error);
-    return false;
+    throw error;
   }
 };
 
