@@ -2,7 +2,6 @@
 import { connectDB } from '@/lib/config/db';
 import { User } from '@/lib/models/User';
 import { verifyToken } from '@/lib/utils/jwt';
-import bcrypt from 'bcryptjs';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -36,11 +35,12 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Actualizar la contraseña dejando que el middleware del modelo User haga el hash
+    // Actualizamos directamente el password sin hashear, dejando que el middleware del modelo lo haga
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     
+    console.log('Guardando nueva contraseña para usuario:', user.email);
     await user.save();
 
     console.log('Contraseña actualizada exitosamente para:', user.email);

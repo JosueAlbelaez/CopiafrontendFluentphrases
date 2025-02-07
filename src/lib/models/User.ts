@@ -74,6 +74,7 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
+    console.log('Hasheando contraseña en middleware pre-save');
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
@@ -84,8 +85,10 @@ userSchema.pre('save', async function(next) {
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
+  console.log('Comparando contraseñas en método comparePassword');
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  console.log('¿Contraseñas coinciden?:', isMatch);
+  return isMatch;
 };
 
 export const User = mongoose.models.User || mongoose.model<IUser, UserModel>('User', userSchema);
-
