@@ -1,7 +1,6 @@
 import { connectDB } from '@/lib/config/db';
 import { User } from '@/lib/models/User';
 import { verifyToken } from '@/lib/utils/jwt';
-import bcrypt from 'bcryptjs';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -31,18 +30,15 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Generar el hash de la nueva contraseña
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    console.log('Nuevo hash generado:', hashedPassword);
-
-    // Actualizar la contraseña y limpiar los tokens
-    user.password = hashedPassword;
+    // Asignar la contraseña sin hashear y dejar que el middleware pre('save') la hashee
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    
+    console.log('Guardando nueva contraseña para usuario:', user.email);
     await user.save();
     
-    console.log('Contraseña actualizada exitosamente para:', user.email);
+    console.log('Contraseña actualizada exitosamente');
 
     res.json({ message: 'Contraseña actualizada exitosamente' });
   } catch (error) {

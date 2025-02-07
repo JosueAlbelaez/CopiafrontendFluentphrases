@@ -51,12 +51,14 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
+    console.log('Contraseña no modificada, saltando hash');
     return next();
   }
 
   try {
     console.log('Hasheando contraseña para:', this.email);
     const salt = await bcrypt.genSalt(10);
+    this.password = this.password.trim(); // Eliminar espacios
     const hashedPassword = await bcrypt.hash(this.password, salt);
     console.log('Hash generado:', hashedPassword);
     this.password = hashedPassword;
@@ -71,9 +73,13 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
   try {
     console.log('Comparando contraseñas para usuario:', this.email);
     console.log('Hash almacenado:', this.password);
-    console.log('Contraseña candidata:', candidatePassword);
+    console.log('Contraseña candidata (sin trim):', candidatePassword);
     
-    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    // Eliminar espacios de la contraseña candidata
+    const trimmedPassword = candidatePassword.trim();
+    console.log('Contraseña candidata (con trim):', trimmedPassword);
+    
+    const isMatch = await bcrypt.compare(trimmedPassword, this.password);
     console.log('¿Contraseñas coinciden?:', isMatch);
     return isMatch;
   } catch (error) {
