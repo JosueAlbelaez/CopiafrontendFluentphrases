@@ -1,4 +1,3 @@
-
 import mongoose, { Model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -49,7 +48,7 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
   timestamps: true
 });
 
-// Hash password before saving (solo para nuevos usuarios o cambios directos de contraseña)
+// Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
@@ -58,7 +57,9 @@ userSchema.pre('save', async function(next) {
   try {
     console.log('Hasheando contraseña para:', this.email);
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    console.log('Hash generado:', hashedPassword);
+    this.password = hashedPassword;
     next();
   } catch (error) {
     console.error('Error hasheando contraseña:', error);
@@ -66,10 +67,12 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Método mejorado para comparar contraseñas
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   try {
     console.log('Comparando contraseñas para usuario:', this.email);
+    console.log('Hash almacenado:', this.password);
+    console.log('Contraseña candidata:', candidatePassword);
+    
     const isMatch = await bcrypt.compare(candidatePassword, this.password);
     console.log('¿Contraseñas coinciden?:', isMatch);
     return isMatch;

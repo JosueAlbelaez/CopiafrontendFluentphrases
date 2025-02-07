@@ -37,7 +37,6 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
           description: "Por favor ingresa un correo electrónico válido.",
           variant: "destructive",
         });
-        setIsLoading(false);
         return;
       }
 
@@ -63,18 +62,19 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         onAuthSuccess();
       }
     } catch (error: any) {
-      console.error('Error completo:', error);
-      
-      if (error.response?.data?.error === 'Usuario no encontrado') {
-        toast({
-          title: "Correo no registrado",
-          description: "¡Regístrate gratis y comienza ahora!",
-          variant: "destructive",
-        });
-      } else if (error.response?.data?.error === 'Contraseña incorrecta') {
+      console.log('Error completo:', error);
+      console.log('Response data:', error.response?.data);
+
+      if (error.response?.data?.error === 'Contraseña incorrecta') {
         toast({
           title: "Contraseña incorrecta",
-          description: "Si olvidaste tu contraseña, haz clic en 'Recuperar contraseña' para restablecerla.",
+          description: "Por favor verifica tu contraseña e intenta nuevamente.",
+          variant: "destructive",
+        });
+      } else if (error.response?.data?.error === 'Usuario no encontrado') {
+        toast({
+          title: "Usuario no encontrado",
+          description: "El correo electrónico no está registrado.",
           variant: "destructive",
         });
       } else {
@@ -103,6 +103,7 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
               name="email"
               type="email"
               required
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -118,6 +119,7 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
               name="password"
               type="password"
               required
+              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"

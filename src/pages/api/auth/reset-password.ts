@@ -1,4 +1,3 @@
-
 import { connectDB } from '@/lib/config/db';
 import { User } from '@/lib/models/User';
 import { verifyToken } from '@/lib/utils/jwt';
@@ -11,19 +10,15 @@ export default async function handler(req: any, res: any) {
 
   try {
     await connectDB();
-
     const { token, password } = req.body;
     
     console.log('Iniciando restablecimiento de contraseña');
     
     const decoded = verifyToken(token);
-
     if (!decoded || !decoded.userId) {
       console.log('Token inválido o expirado');
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
-
-    console.log('Token válido, buscando usuario:', decoded.userId);
 
     const user = await User.findOne({
       _id: decoded.userId,
@@ -36,21 +31,16 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Generar el hash con el mismo número de rondas que en el modelo (10)
+    // Generar el hash de la nueva contraseña
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    console.log('Nuevo hash generado:', hashedPassword);
 
-    // Actualizar usando updateOne para evitar el middleware pre-save
-    await User.updateOne(
-      { _id: user._id },
-      {
-        $set: {
-          password: hashedPassword,
-          resetPasswordToken: undefined,
-          resetPasswordExpires: undefined
-        }
-      }
-    );
+    // Actualizar la contraseña y limpiar los tokens
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
     
     console.log('Contraseña actualizada exitosamente para:', user.email);
 
