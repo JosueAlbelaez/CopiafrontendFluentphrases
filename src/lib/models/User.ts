@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
   timestamps: true
 });
 
-// Hash password before saving
+// Hash password before saving (solo si la contraseña fue modificada)
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
@@ -86,9 +86,14 @@ userSchema.pre('save', async function(next) {
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   console.log('Comparando contraseñas en método comparePassword');
-  const isMatch = await bcrypt.compare(candidatePassword, this.password);
-  console.log('¿Contraseñas coinciden?:', isMatch);
-  return isMatch;
+  try {
+    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    console.log('¿Contraseñas coinciden?:', isMatch);
+    return isMatch;
+  } catch (error) {
+    console.error('Error al comparar contraseñas:', error);
+    return false;
+  }
 };
 
 export const User = mongoose.models.User || mongoose.model<IUser, UserModel>('User', userSchema);
