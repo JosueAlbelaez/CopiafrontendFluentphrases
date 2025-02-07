@@ -13,11 +13,17 @@ export default async function handler(req: any, res: any) {
     await connectDB();
 
     const { token, password } = req.body;
+    
+    console.log('Iniciando restablecimiento de contraseña');
+    
     const decoded = verifyToken(token);
 
     if (!decoded || !decoded.userId) {
+      console.log('Token inválido o expirado');
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
+
+    console.log('Token válido, buscando usuario:', decoded.userId);
 
     const user = await User.findOne({
       _id: decoded.userId,
@@ -26,17 +32,22 @@ export default async function handler(req: any, res: any) {
     });
 
     if (!user) {
+      console.log('Usuario no encontrado o token expirado');
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Generate a salt and hash the password
+    // Hash the password using the same method as in the User model
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Actualizar la contraseña y limpiar los tokens
+    user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    
     await user.save();
 
-    console.log('Contraseña actualizada para usuario:', user.email);
+    console.log('Contraseña actualizada exitosamente para:', user.email);
 
     res.json({ message: 'Contraseña actualizada exitosamente' });
   } catch (error) {

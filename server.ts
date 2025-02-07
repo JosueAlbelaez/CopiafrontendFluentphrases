@@ -94,17 +94,23 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
 app.post('/api/auth/signin', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    console.log('Intento de inicio de sesión para:', email);
 
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('Usuario no encontrado:', email);
       return res.status(401).json({ error: 'Usuario no encontrado' });
     }
 
-    const isValidPassword = await user.comparePassword(password);
+    console.log('Usuario encontrado, verificando contraseña');
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    
     if (!isValidPassword) {
+      console.log('Contraseña incorrecta para usuario:', email);
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
 
+    console.log('Inicio de sesión exitoso para:', email);
     const token = generateToken({ userId: user._id });
 
     res.json({
