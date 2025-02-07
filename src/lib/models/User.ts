@@ -51,39 +51,40 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    console.log('Contraseña no modificada, saltando hash');
+    console.log('Password not modified, skipping hash');
     return next();
   }
 
   try {
-    console.log('Hasheando contraseña para:', this.email);
+    console.log('Hashing password for user:', this.email);
+    // Trim and normalize the password before hashing
+    this.password = this.password.trim();
     const salt = await bcrypt.genSalt(10);
-    this.password = this.password.trim(); // Eliminar espacios
     const hashedPassword = await bcrypt.hash(this.password, salt);
-    console.log('Hash generado:', hashedPassword);
+    console.log('Generated hash:', hashedPassword);
     this.password = hashedPassword;
     next();
   } catch (error) {
-    console.error('Error hasheando contraseña:', error);
+    console.error('Error hashing password:', error);
     next(error as Error);
   }
 });
 
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   try {
-    console.log('Comparando contraseñas para usuario:', this.email);
-    console.log('Hash almacenado:', this.password);
-    console.log('Contraseña candidata (sin trim):', candidatePassword);
+    console.log('Comparing passwords for user:', this.email);
+    console.log('Stored hash:', this.password);
     
-    // Eliminar espacios de la contraseña candidata
-    const trimmedPassword = candidatePassword.trim();
-    console.log('Contraseña candidata (con trim):', trimmedPassword);
+    // Normalize the candidate password
+    const normalizedPassword = candidatePassword.trim();
+    console.log('Normalized candidate password:', normalizedPassword);
     
-    const isMatch = await bcrypt.compare(trimmedPassword, this.password);
-    console.log('¿Contraseñas coinciden?:', isMatch);
+    // Direct comparison using bcrypt
+    const isMatch = await bcrypt.compare(normalizedPassword, this.password);
+    console.log('Passwords match?:', isMatch);
     return isMatch;
   } catch (error) {
-    console.error('Error al comparar contraseñas:', error);
+    console.error('Error comparing passwords:', error);
     throw error;
   }
 };

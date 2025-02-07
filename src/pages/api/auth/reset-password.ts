@@ -11,11 +11,11 @@ export default async function handler(req: any, res: any) {
     await connectDB();
     const { token, password } = req.body;
     
-    console.log('Iniciando restablecimiento de contraseña');
+    console.log('Starting password reset process');
     
     const decoded = verifyToken(token);
     if (!decoded || !decoded.userId) {
-      console.log('Token inválido o expirado');
+      console.log('Invalid or expired token');
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
@@ -26,23 +26,23 @@ export default async function handler(req: any, res: any) {
     });
 
     if (!user) {
-      console.log('Usuario no encontrado o token expirado');
+      console.log('User not found or token expired');
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Asignar la contraseña sin hashear y dejar que el middleware pre('save') la hashee
+    // Let the pre-save middleware handle the password hashing
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     
-    console.log('Guardando nueva contraseña para usuario:', user.email);
+    console.log('Saving new password for user:', user.email);
     await user.save();
     
-    console.log('Contraseña actualizada exitosamente');
+    console.log('Password updated successfully');
 
     res.json({ message: 'Contraseña actualizada exitosamente' });
   } catch (error) {
-    console.error('Error en restablecimiento de contraseña:', error);
+    console.error('Error in password reset:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 }
