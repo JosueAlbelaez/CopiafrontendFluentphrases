@@ -69,24 +69,27 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
   timestamps: true
 });
 
-// Hash password before saving (solo si la contraseña fue modificada)
+// Hash password before saving (solo si la contraseña fue modificada y no es una operación updateOne)
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    console.log('Hasheando contraseña en middleware pre-save');
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+  // No hashear si es una operación updateOne o si la contraseña no fue modificada
+  if (this.isNew || this.isModified('password')) {
+    try {
+      console.log('Hasheando contraseña en middleware pre-save');
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+      next();
+    } catch (error) {
+      next(error as Error);
+    }
+  } else {
     next();
-  } catch (error) {
-    next(error as Error);
   }
 });
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
-  console.log('Comparando contraseñas en método comparePassword');
   try {
+    console.log('Comparando contraseñas');
     console.log('Password almacenado:', this.password);
     console.log('Password candidato:', candidatePassword);
     const isMatch = await bcrypt.compare(candidatePassword, this.password);
