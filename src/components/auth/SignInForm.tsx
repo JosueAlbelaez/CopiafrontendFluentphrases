@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator } from '@/lib/validators';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 interface SignInFormProps {
@@ -9,6 +10,7 @@ interface SignInFormProps {
 
 export function SignInForm({ onAuthSuccess }: SignInFormProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -20,12 +22,8 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCreateAccount = () => {
-    window.location.href = '/signup';
-  };
-
   const handleResetPassword = () => {
-    window.location.href = '/reset-password';
+    navigate('/forgot-password');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,8 +41,13 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         return;
       }
 
-      const response = await axios.post('/api/auth/signin', {
+      console.log('Intentando iniciar sesión con:', {
         email: formData.email,
+        passwordLength: formData.password.length
+      });
+      
+      const response = await axios.post('http://localhost:5000/api/auth/signin', {
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
@@ -60,41 +63,31 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         onAuthSuccess();
       }
     } catch (error: any) {
-      console.log('Error completo:', error);
-
-      if (error.response) {
-        const { status, data } = error.response;
-
-        if (status === 401) {
-          if (data.error === 'Usuario no encontrado') {
-            toast({
-              title: "Correo no registrado",
-              description: "¡Regístrate gratis y comienza ahora!",
-              variant: "destructive",
-            });
-            setTimeout(handleCreateAccount, 10000);
-          } else if (data.error === 'Contraseña incorrecta') {
-            toast({
-              title: "Contraseña incorrecta",
-              description: "Si la olvidaste, haz clic en 'Recuperar contraseña' para restablecerla.",
-              variant: "destructive",
-            });
-          }
-          return;
-        }
+      console.error('Error completo:', error);
+      
+      if (error.response?.data?.error === 'Usuario no encontrado') {
+        toast({
+          title: "Correo no registrado",
+          description: "¡Regístrate gratis y comienza ahora!",
+          variant: "destructive",
+        });
+      } else if (error.response?.data?.error === 'Contraseña incorrecta') {
+        toast({
+          title: "Contraseña incorrecta",
+          description: "Si olvidaste tu contraseña, haz clic en 'Recuperar contraseña' para restablecerla.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error de conexión",
+          description: "No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.",
+          variant: "destructive",
+        });
       }
-
-      // Error genérico para cualquier otro caso
-      toast({
-        title: "Error de conexión",
-        description: "No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-6">
@@ -138,7 +131,7 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
             {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
-          <div className="text-center">
+          <div className="text-center mt-4">
             <button
               type="button"
               onClick={handleResetPassword}

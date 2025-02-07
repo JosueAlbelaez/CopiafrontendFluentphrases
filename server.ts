@@ -7,6 +7,8 @@ import { generateToken, verifyToken } from './src/lib/utils/jwt';
 import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import { sendPasswordResetEmail } from './src/lib/utils/email';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -17,6 +19,8 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
+
+
 
 // Categorías gratuitas
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
@@ -92,17 +96,29 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
 app.post('/api/auth/signin', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    console.log('Intento de inicio de sesión para:', email);
 
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('Usuario no encontrado:', email);
       return res.status(401).json({ error: 'Usuario no encontrado' });
     }
 
-    const isValidPassword = await user.comparePassword(password);
+    console.log('Usuario encontrado, verificando contraseña');
+    console.log('Contraseña ingresada:', password);
+    console.log('Hash almacenado en BD:', user.password);
+
+    console.log('Contraseña ingresada para comparación:', password);
+    console.log('Hash almacenado para comparación:', user.password);
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    console.log('¿Las contraseñas coinciden?:', isValidPassword);
+
     if (!isValidPassword) {
+      console.log('Contraseña incorrecta para usuario:', email);
       return res.status(401).json({ error: 'Contraseña incorrecta' });
     }
 
+    console.log('Inicio de sesión exitoso para:', email);
     const token = generateToken({ userId: user._id });
 
     res.json({
@@ -121,6 +137,88 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
   }
 });
 
+
+// Nueva ruta para recuperación de contraseña
+// Nueva ruta para restablecer contraseña
+app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token y contraseña son requeridos' });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.userId) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const user = await User.findOne({
+      _id: decoded.userId,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error en restablecimiento de contraseña:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+
+
+// Nueva ruta para recuperación de contraseña
+app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    console.log('Recibida solicitud de recuperación para:', email);
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log('Usuario no encontrado:', email);
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    console.log('Usuario encontrado:', user._id);
+    const resetToken = generateToken({ userId: user._id }, '30m');
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = new Date(Date.now() + 1800000); // 30 minutos
+    await user.save();
+    console.log('Token guardado en la base de datos');
+
+    try {
+      const emailInfo = await sendPasswordResetEmail(email, resetToken);
+      console.log('Correo enviado exitosamente:', emailInfo);
+      res.json({
+        message: 'Se ha enviado un correo con las instrucciones',
+        debug: emailInfo
+      });
+    } catch (error) {
+      console.error('Error al enviar el correo:', error);
+      // Revertir los cambios en el usuario si el correo falla
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+      
+      throw new Error('Error al enviar el correo de recuperación');
+    }
+  } catch (error: any) {
+    console.error('Error en recuperación:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
 // Rutas de frases
 app.get('/api/phrases', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -194,6 +292,8 @@ app.post('/api/phrases/increment', authenticateToken, async (req: Request, res: 
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);

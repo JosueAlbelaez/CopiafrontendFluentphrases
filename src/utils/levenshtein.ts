@@ -1,5 +1,5 @@
 // Función para calcular la distancia de Levenshtein entre dos cadenas
-export function levenshteinDistance(str1: string, str2: string): number {
+export function calculateLevenshteinDistance(str1: string, str2: string): number {
     const m = str1.length;
     const n = str2.length;
     const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
@@ -31,7 +31,7 @@ export function levenshteinDistance(str1: string, str2: string): number {
   // Función para calcular el porcentaje de similitud
   export function calculateSimilarity(str1: string, str2: string): number {
     const maxLength = Math.max(str1.length, str2.length);
-    const distance = levenshteinDistance(str1, str2);
+    const distance = calculateLevenshteinDistance(str1, str2);
     const similarity = ((maxLength - distance) / maxLength) * 100;
     return Math.round(similarity);
   }

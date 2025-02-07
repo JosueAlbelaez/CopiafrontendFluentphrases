@@ -1,31 +1,36 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
 
-dotenv.config();
+const EMAIL_USER = 'info.fluentphrases@gmail.com';
+const EMAIL_PASSWORD = 'ptqbzewejjrclzhp';
+const FRONTEND_URL = 'http://localhost:8080';
 
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
-const FRONTEND_URL = process.env.FRONTEND_URL;
-
-if (!EMAIL_USER || !EMAIL_PASSWORD) {
-  console.warn('Advertencia: Credenciales de correo no configuradas');
-}
+console.log('Configurando transporter con:', {
+  user: EMAIL_USER,
+  frontendUrl: FRONTEND_URL
+});
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASSWORD
+  },
+  debug: true,
+  logger: true
+});
+
+// Verificar la conexión al iniciar
+transporter.verify(function(error) {
+  if (error) {
+    console.error('Error al verificar el transporter:', error);
+  } else {
+    console.log('Servidor listo para enviar correos');
   }
 });
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  if (!EMAIL_USER || !EMAIL_PASSWORD) {
-    console.warn('No se puede enviar correo: credenciales no configuradas');
-    return;
-  }
-
   const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
+  console.log('URL de verificación generada:', verificationUrl);
   
   const mailOptions = {
     from: EMAIL_USER,
@@ -49,26 +54,28 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Correo de verificación enviado a:', email);
-  } catch (error) {
-    console.error('Error al enviar correo de verificación:', error);
+    console.log('Intentando enviar correo de verificación a:', email);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Correo de verificación enviado:', info.response);
+    console.log('ID del mensaje:', info.messageId);
+    console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
+    return info;
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error detallado al enviar correo de verificación:', error);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  if (!EMAIL_USER || !EMAIL_PASSWORD) {
-    console.warn('No se puede enviar correo: credenciales no configuradas');
-    return;
-  }
-
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+  console.log('Generando URL de recuperación:', resetUrl);
 
   const mailOptions = {
     from: EMAIL_USER,
     to: email,
-    subject: 'Restablecer contraseña',
+    subject: 'Restablecer contraseña - Fluent Phrases',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #2b6cb0;">Restablecer contraseña</h1>
@@ -79,7 +86,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
             Restablecer contraseña
           </a>
         </div>
-        <p style="color: #718096; font-size: 14px;">Este enlace expirará en 1 hora.</p>
+        <p style="color: #718096; font-size: 14px;">Este enlace expirará en 30 minutos.</p>
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
         <p style="color: #718096; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
       </div>
@@ -87,10 +94,16 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Correo de restablecimiento enviado a:', email);
-  } catch (error) {
-    console.error('Error al enviar correo de restablecimiento:', error);
+    console.log('Intentando enviar correo a:', email);
+    console.log('Opciones de correo:', JSON.stringify(mailOptions, null, 2));
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Respuesta del servidor:', info.response);
+    console.log('ID del mensaje:', info.messageId);
+    return info;
+  } catch (error: any) {
+    console.error('Error al enviar correo:', error);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
-};
+}

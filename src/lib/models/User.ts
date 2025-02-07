@@ -1,7 +1,8 @@
-import mongoose, { Document, Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 interface IUser {
+  _id?: Types.ObjectId | string;
   firstName: string;
   lastName: string;
   email: string;
@@ -22,16 +23,8 @@ interface IUserMethods {
 type UserModel = Model<IUser, {}, IUserMethods>;
 
 const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
-  firstName: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  lastName: {
-    type: String,
-    required: true,
-    trim: true
-  },
+  firstName: { type: String, required: true, trim: true },
+  lastName: { type: String, required: true, trim: true },
   email: {
     type: String,
     required: true,
@@ -39,50 +32,65 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
     trim: true,
     lowercase: true
   },
-  password: {
-    type: String,
-    required: true
-  },
+  password: { type: String, required: true },
   role: {
     type: String,
     enum: ['free', 'premium', 'admin'],
     default: 'free'
   },
-  isEmailVerified: {
-    type: Boolean,
-    default: false
-  },
+  isEmailVerified: { type: Boolean, default: false },
   verificationToken: String,
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  dailyPhrasesCount: {
-    type: Number,
-    default: 0
-  },
-  lastPhrasesReset: {
-    type: Date,
-    default: Date.now
-  }
+  dailyPhrasesCount: { type: Number, default: 0 },
+  lastPhrasesReset: { type: Date, default: Date.now }
 }, {
   timestamps: true
 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
+  if (!this.isModified('password')) {
+    console.log('Password not modified, skipping hash');
+    return next();
+  }
+
   try {
+    console.log('Hashing password for user:', this.email);
+    // Trim and normalize the password before hashing
+    this.password = this.password.trim();
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    console.log('Generated hash:', hashedPassword);
+    this.password = hashedPassword;
     next();
   } catch (error) {
+    console.error('Error hashing password:', error);
     next(error as Error);
   }
 });
 
-// Method to compare password
-userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  try {
+    console.log(`[comparePassword] Comparando contraseña para: ${this.email}`);
+    console.log(`[comparePassword] Contraseña ingresada por el usuario: "${candidatePassword}"`);
+    console.log(`[comparePassword] Hash almacenado en BD: ${this.password}`);
+
+    // Asegurar que no haya espacios en la contraseña ingresada
+    const normalizedPassword = candidatePassword.trim();
+    console.log(`[comparePassword] Contraseña normalizada: "${normalizedPassword}"`);
+
+    // Comparar con bcrypt
+    console.log(`[comparePassword] Contraseña ingresada: ${normalizedPassword}`);
+    console.log(`[comparePassword] Hash almacenado: ${this.password}`);
+    const isMatch = await bcrypt.compare(normalizedPassword, this.password);
+    console.log(`[comparePassword] ¿Las contraseñas coinciden?: ${isMatch}`);
+
+    return isMatch;
+  } catch (error) {
+    console.error('[comparePassword] Error comparando contraseñas:', error);
+    throw error;
+  }
 };
 
 export const User = mongoose.models.User || mongoose.model<IUser, UserModel>('User', userSchema);

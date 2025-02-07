@@ -1,37 +1,50 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import { passwordValidator } from '@/lib/validators';
+import axios from 'axios';
 
 export function ResetPasswordForm() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      if (password !== confirmPassword) {
+        throw new Error('Las contraseñas no coinciden');
+      }
+
       if (!passwordValidator(password)) {
         throw new Error('La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial');
       }
 
-      const { error } = await supabase.auth.updateUser({
-        password: password,
-      });
+      const token = new URLSearchParams(window.location.search).get('token');
+      if (!token) {
+        throw new Error('Token no proporcionado');
+      }
 
-      if (error) throw error;
+      await axios.post('/api/auth/reset-password', {
+        token,
+        password
+      });
 
       toast({
         title: "Contraseña actualizada",
         description: "Tu contraseña ha sido actualizada exitosamente",
       });
 
-    } catch (error) {
+      navigate('/');
+
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Error al actualizar la contraseña",
+        description: error.response?.data?.error || error.message || "Error al actualizar la contraseña",
         variant: "destructive",
       });
     } finally {
@@ -54,6 +67,20 @@ export function ResetPasswordForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Confirmar contraseña
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
             <p className="text-sm text-gray-500">
