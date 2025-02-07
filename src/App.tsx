@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -8,6 +9,7 @@ import { ToastContainer } from './hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Route, Routes } from 'react-router-dom';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
+import { PricingModal } from './components/subscription/PricingModal';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'

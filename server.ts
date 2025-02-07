@@ -8,7 +8,7 @@ import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { sendPasswordResetEmail } from './src/lib/utils/email';
-import mercadopago from 'mercadopago';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 dotenv.config();
 
@@ -51,8 +51,8 @@ const authenticateToken = async (req: Request, res: Response, next: NextFunction
 };
 
 // Configurar MercadoPago
-mercadopago.configure({
-  access_token: process.env.MP_ACCESS_TOKEN || ''
+const client = new MercadoPagoConfig({ 
+  accessToken: process.env.MP_ACCESS_TOKEN || '' 
 });
 
 // Rutas de autenticación
@@ -290,7 +290,8 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
   try {
     const { title, price, currency } = req.body;
 
-    const preference = {
+    const preference = new Preference(client);
+    const preferenceData = {
       items: [
         {
           title,
@@ -307,10 +308,10 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
       auto_return: 'approved',
     };
 
-    const response = await mercadopago.preferences.create(preference);
+    const response = await preference.create({ body: preferenceData });
     res.json({
-      id: response.body.id,
-      init_point: response.body.init_point
+      id: response.id,
+      init_point: response.init_point
     });
   } catch (error) {
     console.error('Error creating preference:', error);
