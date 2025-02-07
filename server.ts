@@ -8,7 +8,6 @@ import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { sendPasswordResetEmail } from './src/lib/utils/email';
-import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -19,8 +18,6 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
-
-
 
 // Categorías gratuitas
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
@@ -105,14 +102,8 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
     }
 
     console.log('Usuario encontrado, verificando contraseña');
-    console.log('Contraseña ingresada:', password);
-    console.log('Hash almacenado en BD:', user.password);
-
-    console.log('Contraseña ingresada para comparación:', password);
-    console.log('Hash almacenado para comparación:', user.password);
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log('¿Las contraseñas coinciden?:', isValidPassword);
-
+    const isValidPassword = await user.comparePassword(password);
+    
     if (!isValidPassword) {
       console.log('Contraseña incorrecta para usuario:', email);
       return res.status(401).json({ error: 'Contraseña incorrecta' });
@@ -137,48 +128,6 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
   }
 });
 
-
-// Nueva ruta para recuperación de contraseña
-// Nueva ruta para restablecer contraseña
-app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
-  try {
-    const { token, password } = req.body;
-    
-    if (!token || !password) {
-      return res.status(400).json({ error: 'Token y contraseña son requeridos' });
-    }
-
-    const decoded = verifyToken(token);
-    if (!decoded || !decoded.userId) {
-      return res.status(400).json({ error: 'Token inválido o expirado' });
-    }
-
-    const user = await User.findOne({
-      _id: decoded.userId,
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }
-    });
-
-    if (!user) {
-      return res.status(400).json({ error: 'Token inválido o expirado' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
-
-    res.json({ message: 'Contraseña actualizada exitosamente' });
-  } catch (error) {
-    console.error('Error en restablecimiento de contraseña:', error);
-    res.status(500).json({ error: 'Error en el servidor' });
-  }
-});
-
-
-
-// Nueva ruta para recuperación de contraseña
 app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -219,6 +168,43 @@ app.post('/api/auth/forgot-password', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
+
+app.post('/api/auth/reset-password', async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token y contraseña son requeridos' });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.userId) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const user = await User.findOne({
+      _id: decoded.userId,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    // Modificamos esta parte para usar el método setPassword del modelo
+    user.password = password; // El hasheo se hará automáticamente por el middleware pre('save')
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Contraseña actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error en restablecimiento de contraseña:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
 // Rutas de frases
 app.get('/api/phrases', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -292,8 +278,6 @@ app.post('/api/phrases/increment', authenticateToken, async (req: Request, res: 
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
