@@ -42,7 +42,10 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
         return;
       }
 
-      console.log('Intentando iniciar sesión con:', formData.email);
+      console.log('Intentando iniciar sesión con:', {
+        email: formData.email,
+        passwordLength: formData.password.length
+      });
       
       const response = await axios.post('http://localhost:5000/api/auth/signin', {
         email: formData.email,
