@@ -36,10 +36,11 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Token inválido o expirado' });
     }
 
-    // Actualizar directamente en la base de datos para evitar el middleware pre-save
+    // Generar el hash con el mismo número de rondas que en el modelo (10)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Actualizar usando updateOne para evitar el middleware pre-save
     await User.updateOne(
       { _id: user._id },
       {

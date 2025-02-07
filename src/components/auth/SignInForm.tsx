@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator } from '@/lib/validators';
@@ -48,15 +47,9 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
       });
       
       const response = await axios.post('http://localhost:5000/api/auth/signin', {
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
       });
-
-      console.log('Respuesta del servidor:', response.data);
 
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
@@ -71,34 +64,26 @@ export function SignInForm({ onAuthSuccess }: SignInFormProps) {
       }
     } catch (error: any) {
       console.error('Error completo:', error);
-      console.error('Response data:', error.response?.data);
-
-      if (error.response) {
-        const { status, data } = error.response;
-
-        if (status === 401) {
-          if (data.error === 'Usuario no encontrado') {
-            toast({
-              title: "Correo no registrado",
-              description: "¡Regístrate gratis y comienza ahora!",
-              variant: "destructive",
-            });
-          } else if (data.error === 'Contraseña incorrecta') {
-            toast({
-              title: "Contraseña incorrecta",
-              description: "Si olvidaste tu contraseña, haz clic en 'Recuperar contraseña' para restablecerla.",
-              variant: "destructive",
-            });
-          }
-          return;
-        }
+      
+      if (error.response?.data?.error === 'Usuario no encontrado') {
+        toast({
+          title: "Correo no registrado",
+          description: "¡Regístrate gratis y comienza ahora!",
+          variant: "destructive",
+        });
+      } else if (error.response?.data?.error === 'Contraseña incorrecta') {
+        toast({
+          title: "Contraseña incorrecta",
+          description: "Si olvidaste tu contraseña, haz clic en 'Recuperar contraseña' para restablecerla.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error de conexión",
+          description: "No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Error de conexión",
-        description: "No se pudo conectar con el servidor. Por favor, intenta de nuevo más tarde.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
