@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -45,6 +44,7 @@ function App() {
   const [typedText, setTypedText] = useState('');
   const currentYear = new Date().getFullYear();
   const [user, setUser] = useState<any>(null);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
@@ -52,6 +52,14 @@ function App() {
   };
 
   const handleCategoryChange = (category: string) => {
+    const isFreeCategory = FREE_CATEGORIES.includes(category);
+    const isPremiumUser = user?.role?.includes('premium');
+    
+    if (!isFreeCategory && !isPremiumUser) {
+      setShowPricingModal(true);
+      return;
+    }
+    
     setSelectedCategory(category);
   };
 
@@ -178,6 +186,11 @@ function App() {
           } />
         </Routes>
       </main>
+
+      <PricingModal 
+        isOpen={showPricingModal} 
+        onClose={() => setShowPricingModal(false)} 
+      />
 
       <ToastContainer />
 

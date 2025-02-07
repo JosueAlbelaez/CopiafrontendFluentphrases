@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PricingCard } from "./PricingCard";
-import { supabase } from "@/lib/supabase";
+import { createPreference } from "@/lib/mercadopago";
 
 const plans = [
   {
@@ -52,23 +53,25 @@ export function PricingPlans() {
   const handleSubscribe = async (planId: string) => {
     try {
       setLoadingPlan(planId);
+      const selectedPlan = plans.find(plan => plan.id === planId);
       
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("Debes iniciar sesión para suscribirte");
+      if (!selectedPlan) {
+        throw new Error("Plan no encontrado");
       }
 
-      // Aquí irá la lógica de Stripe que implementaremos después
-      toast({
-        title: "Próximamente",
-        description: "La funcionalidad de pagos estará disponible pronto",
-      });
+      const checkoutUrl = await createPreference(
+        selectedPlan.title,
+        selectedPlan.price,
+        'USD'
+      );
+
+      window.location.href = checkoutUrl;
 
     } catch (error) {
+      console.error('Error al procesar el pago:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Error al procesar la suscripción",
+        description: error instanceof Error ? error.message : "Error al procesar el pago",
         variant: "destructive",
       });
     } finally {

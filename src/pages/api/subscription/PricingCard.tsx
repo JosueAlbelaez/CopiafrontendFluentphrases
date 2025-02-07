@@ -1,10 +1,11 @@
+
 interface PricingCardProps {
   title: string;
   price: number;
   description: string;
   features: string[];
   interval: string;
-  onSubscribe: () => void;
+  onSubscribe: () => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -48,11 +49,11 @@ export function PricingCard({
           ))}
         </ul>
         <button
-          onClick={onSubscribe}
+          onClick={() => !isLoading && onSubscribe()}
           disabled={isLoading}
           className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? "Procesando..." : "Suscribirse"}
+          {isLoading ? "Procesando..." : "Pagar con Mercado Pago"}
         </button>
       </div>
     </div>

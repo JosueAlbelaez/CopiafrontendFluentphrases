@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './src/lib/config/db';
@@ -9,6 +8,7 @@ import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { sendPasswordResetEmail } from './src/lib/utils/email';
+import mercadopago from 'mercadopago';
 
 dotenv.config();
 
@@ -49,6 +49,11 @@ const authenticateToken = async (req: Request, res: Response, next: NextFunction
     res.status(403).json({ error: 'Token inválido' });
   }
 };
+
+// Configurar MercadoPago
+mercadopago.configure({
+  access_token: process.env.MP_ACCESS_TOKEN || ''
+});
 
 // Rutas de autenticación
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
@@ -280,7 +285,39 @@ app.post('/api/phrases/increment', authenticateToken, async (req: Request, res: 
   }
 });
 
+// Ruta para crear preferencia de MercadoPago
+app.post('/api/create-preference', async (req: Request, res: Response) => {
+  try {
+    const { title, price, currency } = req.body;
+
+    const preference = {
+      items: [
+        {
+          title,
+          unit_price: price,
+          currency_id: currency,
+          quantity: 1,
+        },
+      ],
+      back_urls: {
+        success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/success`,
+        failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/failure`,
+        pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending`,
+      },
+      auto_return: 'approved',
+    };
+
+    const response = await mercadopago.preferences.create(preference);
+    res.json({
+      id: response.body.id,
+      init_point: response.body.init_point
+    });
+  } catch (error) {
+    console.error('Error creating preference:', error);
+    res.status(500).json({ error: 'Error al crear la preferencia de pago' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
-
