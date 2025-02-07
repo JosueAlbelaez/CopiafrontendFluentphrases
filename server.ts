@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './src/lib/config/db';
@@ -292,23 +293,29 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
 
     const preference = new Preference(client);
     const preferenceData = {
-      items: [
-        {
-          title,
-          unit_price: price,
-          currency_id: currency,
-          quantity: 1,
+      body: {
+        items: [
+          {
+            id: `ITEM-${Date.now()}`, // Agregamos un ID único
+            title,
+            unit_price: Number(price),
+            currency_id: currency,
+            quantity: 1,
+            description: `Suscripción a ${title}`,
+            category_id: 'subscriptions'
+          }
+        ],
+        back_urls: {
+          success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/success`,
+          failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/failure`,
+          pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending`
         },
-      ],
-      back_urls: {
-        success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/success`,
-        failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/failure`,
-        pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending`,
-      },
-      auto_return: 'approved',
+        auto_return: 'approved',
+        statement_descriptor: 'Fluent Phrases'
+      }
     };
 
-    const response = await preference.create({ body: preferenceData });
+    const response = await preference.create(preferenceData);
     res.json({
       id: response.id,
       init_point: response.init_point
@@ -322,3 +329,4 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+
