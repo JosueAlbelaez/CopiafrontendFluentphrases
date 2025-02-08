@@ -28,6 +28,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(category);
 
   const {
     phrases: allPhrases,
@@ -37,7 +38,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
     error,
     isAuthenticated,
     userRole,
-  } = usePhrases(language, category);
+  } = usePhrases(language, selectedCategory);
 
   const DAILY_LIMIT = 20;
   const ITEMS_PER_PAGE = 50;
@@ -52,22 +53,34 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
     setShowPricingModal(false);
   }, [category, isPremium, isAuthenticated]);
 
+  useEffect(() => {
+    setSelectedCategory(category);
+  }, [category]);
+
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
     const shuffled = [...phrases].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
   };
 
+  const handleCategorySelect = (newCategory: string) => {
+    if (!isPremium && !FREE_CATEGORIES.includes(newCategory)) {
+      setShowPricingModal(true);
+      return;
+    }
+    setSelectedCategory(newCategory);
+  };
+
   let filteredPhrases =
-    category && category !== 'Todas las categorías'
-      ? allPhrases.filter((phrase) => phrase.category === category)
+    selectedCategory && selectedCategory !== 'Todas las categorías'
+      ? allPhrases.filter((phrase) => phrase.category === selectedCategory)
       : allPhrases;
 
-  if (!isPremium && category && !FREE_CATEGORIES.includes(category)) {
+  if (!isPremium && selectedCategory && !FREE_CATEGORIES.includes(selectedCategory)) {
     filteredPhrases = [];
   }
 
-  if (isPremium && category === 'Todas las categorías') {
+  if (isPremium && selectedCategory === 'Todas las categorías') {
     filteredPhrases = getRandomPhrases(filteredPhrases, 10);
   }
 
@@ -75,7 +88,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [category, language]);
+  }, [selectedCategory, language]);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
@@ -171,12 +184,12 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
       ) : filteredPhrases.length === 0 ? (
         <div className="text-center p-8">
           <p className="text-gray-600 dark:text-gray-400">
-            {!isPremium && category && !FREE_CATEGORIES.includes(category)
+            {!isPremium && selectedCategory && !FREE_CATEGORIES.includes(selectedCategory)
               ? 'Esta categoría requiere una suscripción premium'
               : 'No hay frases disponibles en esta categoría.'}
           </p>
         </div>
-      ) : TABLE_VIEW_CATEGORIES.includes(category || '') ? (
+      ) : TABLE_VIEW_CATEGORIES.includes(selectedCategory || '') ? (
         <TableView
           phrases={filteredPhrases}
           incrementCount={handlePhraseInteraction}
@@ -193,7 +206,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
           isDarkMode={document.documentElement.classList.contains('dark')}
           isProcessing={isProcessing}
           language={language}
-          category={category}
+          category={selectedCategory}
           showProgress={isPremium}
         />
       )}
