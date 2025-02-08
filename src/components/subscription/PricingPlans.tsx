@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PricingCard } from "./PricingCard";
+import { createPreference } from "@/lib/mercadopago";
+import { supabase } from "@/lib/supabase";
 
 const plans = [
   {
@@ -52,36 +54,25 @@ export function PricingPlans() {
   const handleSubscribe = async (planId: string) => {
     try {
       setLoadingPlan(planId);
-      const selectedPlan = plans.find(plan => plan.id === planId);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("Debes iniciar sesión para suscribirte");
+      }
+
+      const selectedPlan = plans.find(plan => plan.id === planId);
       if (!selectedPlan) {
         throw new Error("Plan no encontrado");
       }
 
-      const response = await fetch('/api/create-preference', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: selectedPlan.title,
-          price: selectedPlan.price,
-          currency: 'USD'
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al crear la preferencia de pago');
-      }
-
-      const data = await response.json();
-      window.location.href = data.init_point;
+      const initPoint = await createPreference(selectedPlan.title, selectedPlan.price);
+      window.location.href = initPoint;
 
     } catch (error) {
-      console.error('Error al procesar el pago:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Error al procesar el pago",
+        description: error instanceof Error ? error.message : "Error al procesar la suscripción",
         variant: "destructive",
       });
     } finally {

@@ -55,7 +55,7 @@ function App() {
 
   const handleCategoryChange = (category: string) => {
     const isFreeCategory = FREE_CATEGORIES.includes(category);
-    const isPremiumUser = user?.role?.includes('premium');
+    const isPremiumUser = user?.role === 'premium' || user?.role === 'admin';
     
     if (!isFreeCategory && !isPremiumUser) {
       setShowPricingModal(true);
@@ -164,7 +164,7 @@ function App() {
                         <option value="">Todas las categorías</option>
                         {categories[selectedLanguage as keyof typeof categories].map((category) => {
                           const isFreeCategory = FREE_CATEGORIES.includes(category);
-                          const isPremiumUser = user?.role?.includes('premium');
+                          const isPremiumUser = user?.role === 'premium' || user?.role === 'admin';
                           const isDisabled = !isPremiumUser && !isFreeCategory;
                           
                           return (
