@@ -48,27 +48,17 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   useEffect(() => {
     if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
       setShowPricingModal(true);
+      setSelectedCategory(undefined); // No permitir seleccionar la categoría premium
       return;
     }
+    setSelectedCategory(category);
     setShowPricingModal(false);
   }, [category, isPremium, isAuthenticated]);
-
-  useEffect(() => {
-    setSelectedCategory(category);
-  }, [category]);
 
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
     const shuffled = [...phrases].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
-  };
-
-  const handleCategorySelect = (newCategory: string) => {
-    if (!isPremium && !FREE_CATEGORIES.includes(newCategory)) {
-      setShowPricingModal(true);
-      return;
-    }
-    setSelectedCategory(newCategory);
   };
 
   let filteredPhrases =
