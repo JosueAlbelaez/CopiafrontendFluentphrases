@@ -45,10 +45,11 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
 
   useEffect(() => {
-    // Mostrar el modal de precios si la categoría no es gratuita y el usuario no es premium
     if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
       setShowPricingModal(true);
+      return;
     }
+    setShowPricingModal(false);
   }, [category, isPremium, isAuthenticated]);
 
   const getRandomPhrases = (phrases: any[], count: number) => {
@@ -61,6 +62,10 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
     category && category !== 'Todas las categorías'
       ? allPhrases.filter((phrase) => phrase.category === category)
       : allPhrases;
+
+  if (!isPremium && category && !FREE_CATEGORIES.includes(category)) {
+    filteredPhrases = [];
+  }
 
   if (isPremium && category === 'Todas las categorías') {
     filteredPhrases = getRandomPhrases(filteredPhrases, 10);
@@ -165,7 +170,11 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
         </div>
       ) : filteredPhrases.length === 0 ? (
         <div className="text-center p-8">
-          <p className="text-gray-600 dark:text-gray-400">No hay frases disponibles en esta categoría.</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            {!isPremium && category && !FREE_CATEGORIES.includes(category)
+              ? 'Esta categoría requiere una suscripción premium'
+              : 'No hay frases disponibles en esta categoría.'}
+          </p>
         </div>
       ) : TABLE_VIEW_CATEGORIES.includes(category || '') ? (
         <TableView
@@ -189,12 +198,8 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
         />
       )}
 
-      {!isPremium && (
-        <>
-          <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
-          <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
-        </>
-      )}
+      <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
+      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
     </div>
   );
 }
