@@ -20,15 +20,14 @@ const TABLE_VIEW_CATEGORIES = [
 interface PhrasesContainerProps {
   language: string;
   category?: string;
+  onPremiumCategorySelect: () => void;
 }
 
-export function PhrasesContainer({ language, category }: PhrasesContainerProps) {
+export function PhrasesContainer({ language, category, onPremiumCategorySelect }: PhrasesContainerProps) {
   const [showAuthModal, setShowAuthModal] = useState<'signin' | 'signup' | null>(null);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
-  const [showPricingModal, setShowPricingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(category);
 
   const {
     phrases: allPhrases,
@@ -38,22 +37,11 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
     error,
     isAuthenticated,
     userRole,
-  } = usePhrases(language, selectedCategory);
+  } = usePhrases(language, category);
 
   const DAILY_LIMIT = 20;
   const ITEMS_PER_PAGE = 50;
   const isPremium = userRole === 'premium' || userRole === 'admin';
-  const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
-
-  useEffect(() => {
-    if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
-      setShowPricingModal(true);
-      setSelectedCategory(undefined); // No permitir seleccionar la categoría premium
-      return;
-    }
-    setSelectedCategory(category);
-    setShowPricingModal(false);
-  }, [category, isPremium, isAuthenticated]);
 
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
@@ -62,15 +50,11 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   };
 
   let filteredPhrases =
-    selectedCategory && selectedCategory !== 'Todas las categorías'
-      ? allPhrases.filter((phrase) => phrase.category === selectedCategory)
+    category && category !== 'Todas las categorías'
+      ? allPhrases.filter((phrase) => phrase.category === category)
       : allPhrases;
 
-  if (!isPremium && selectedCategory && !FREE_CATEGORIES.includes(selectedCategory)) {
-    filteredPhrases = [];
-  }
-
-  if (isPremium && selectedCategory === 'Todas las categorías') {
+  if (isPremium && category === 'Todas las categorías') {
     filteredPhrases = getRandomPhrases(filteredPhrases, 10);
   }
 
@@ -78,7 +62,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [selectedCategory, language]);
+  }, [category, language]);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
@@ -173,13 +157,9 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
         </div>
       ) : filteredPhrases.length === 0 ? (
         <div className="text-center p-8">
-          <p className="text-gray-600 dark:text-gray-400">
-            {!isPremium && selectedCategory && !FREE_CATEGORIES.includes(selectedCategory)
-              ? 'Esta categoría requiere una suscripción premium'
-              : 'No hay frases disponibles en esta categoría.'}
-          </p>
+          <p className="text-gray-600 dark:text-gray-400">No hay frases disponibles en esta categoría.</p>
         </div>
-      ) : TABLE_VIEW_CATEGORIES.includes(selectedCategory || '') ? (
+      ) : TABLE_VIEW_CATEGORIES.includes(category || '') ? (
         <TableView
           phrases={filteredPhrases}
           incrementCount={handlePhraseInteraction}
@@ -196,13 +176,12 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
           isDarkMode={document.documentElement.classList.contains('dark')}
           isProcessing={isProcessing}
           language={language}
-          category={selectedCategory}
+          category={category}
           showProgress={isPremium}
         />
       )}
 
       <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
-      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
     </div>
   );
 }

@@ -44,9 +44,9 @@ function App() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>(DEFAULT_LANGUAGE);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [typedText, setTypedText] = useState('');
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const currentYear = new Date().getFullYear();
   const [user, setUser] = useState<any>(null);
-  const [showPricingModal, setShowPricingModal] = useState(false);
 
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
@@ -63,6 +63,10 @@ function App() {
     }
     
     setSelectedCategory(category);
+  };
+
+  const handlePremiumCategorySelect = () => {
+    setShowPricingModal(true);
   };
 
   useEffect(() => {
@@ -160,7 +164,8 @@ function App() {
                         <option value="">Todas las categorías</option>
                         {categories[selectedLanguage as keyof typeof categories].map((category) => {
                           const isFreeCategory = FREE_CATEGORIES.includes(category);
-                          const isDisabled = !user?.role?.includes('premium') && !isFreeCategory;
+                          const isPremiumUser = user?.role?.includes('premium');
+                          const isDisabled = !isPremiumUser && !isFreeCategory;
                           
                           return (
                             <option 
@@ -180,6 +185,7 @@ function App() {
                     <PhrasesContainer
                       language={selectedLanguage}
                       category={selectedCategory}
+                      onPremiumCategorySelect={handlePremiumCategorySelect}
                     />
                   </div>
                 </div>
