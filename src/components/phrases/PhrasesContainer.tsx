@@ -20,7 +20,6 @@ const TABLE_VIEW_CATEGORIES = [
 interface PhrasesContainerProps {
   language: string;
   category?: string;
-  onPremiumCategorySelect: () => void;
 }
 
 export function PhrasesContainer({ language, category }: PhrasesContainerProps) {
@@ -64,6 +63,14 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   useEffect(() => {
     setCurrentPage(0);
   }, [category, language]);
+
+  // Verificar si la categoría es premium
+  useEffect(() => {
+    const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
+    if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
+      setShowPricingModal(true);
+    }
+  }, [category, isPremium, isAuthenticated]);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);

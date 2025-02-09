@@ -8,7 +8,6 @@ import { ToastContainer } from './hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Route, Routes } from 'react-router-dom';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
-import { PricingModal } from './components/subscription/PricingModal';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -43,7 +42,6 @@ function App() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>(DEFAULT_LANGUAGE);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [typedText, setTypedText] = useState('');
-  const [showPricingModal, setShowPricingModal] = useState(false);
   const currentYear = new Date().getFullYear();
   const [user, setUser] = useState<any>(null);
 
@@ -53,14 +51,6 @@ function App() {
   };
 
   const handleCategoryChange = (category: string) => {
-    const isFreeCategory = FREE_CATEGORIES.includes(category);
-    const isPremiumUser = user?.role === 'premium' || user?.role === 'admin';
-    
-    if (!isFreeCategory && !isPremiumUser) {
-      setShowPricingModal(true);
-      return;
-    }
-    
     setSelectedCategory(category);
   };
 
@@ -188,13 +178,6 @@ function App() {
           } />
         </Routes>
       </main>
-
-      <PricingModal 
-        isOpen={showPricingModal} 
-        onClose={() => setShowPricingModal(false)} 
-      />
-
-      <ToastContainer />
 
       <footer className={`w-full text-gray-300 mt-8 ${isDarkMode ? 'bg-gray-900' : 'bg-blue-700'}`}>
         <div className="max-w-6xl mx-auto px-4 py-8">
