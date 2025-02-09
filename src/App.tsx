@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -10,6 +11,7 @@ import { Route, Routes } from 'react-router-dom';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import { PricingModal } from './components/subscription/PricingModal';
 import { PremiumBanner } from './components/subscription/PremiumBanner';
+import VerifyEmail from './pages/VerifyEmail';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -123,6 +125,7 @@ function App() {
         <Routes>
           <Route path="/reset-password" element={<ResetPasswordForm />} />
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/" element={
             <div className="max-w-4xl mx-auto px-4 py-8">
               {user?.role !== 'premium' && user?.role !== 'admin' && (
