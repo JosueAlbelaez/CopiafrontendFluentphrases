@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PricingCard } from "./PricingCard";
 import { createPreference } from "@/lib/mercadopago";
-import { supabase } from "@/lib/supabase";
 
 const plans = [
   {
@@ -55,29 +54,16 @@ export function PricingPlans() {
     try {
       setLoadingPlan(planId);
 
-      // Primero verificamos si hay una sesión activa
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log("Sesión actual:", session); // Debug log
+      // Verificamos si hay un token en localStorage
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
 
-      if (sessionError) {
-        console.error("Error al obtener sesión:", sessionError);
-        throw new Error("Error al verificar la sesión");
-      }
-
-      // Si no hay sesión, el usuario no está autenticado
-      if (!session) {
-        console.error("No hay sesión activa");
+      if (!token || !user) {
+        console.error("No hay token o usuario en localStorage");
         throw new Error("Debes iniciar sesión para suscribirte");
       }
 
-      // Obtenemos los datos del usuario
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log("Usuario actual:", user); // Debug log
-
-      if (userError || !user) {
-        console.error("Error al obtener usuario:", userError);
-        throw new Error("No se pudo verificar el usuario");
-      }
+      console.log("Usuario autenticado:", JSON.parse(user)); // Debug log
 
       // Buscamos el plan seleccionado
       const selectedPlan = plans.find(plan => plan.id === planId);
