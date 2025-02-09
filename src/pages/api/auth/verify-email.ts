@@ -31,7 +31,21 @@ export default async function handler(req: any, res: any) {
     user.verificationToken = undefined;
     await user.save();
 
-    res.json({ message: 'Email verificado exitosamente' });
+    // Generamos un token de autenticación para el usuario
+    const authToken = generateToken({ userId: user._id });
+
+    // Devolvemos el token y la información del usuario
+    res.json({ 
+      message: 'Email verificado exitosamente',
+      token: authToken,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role
+      }
+    });
   } catch (error) {
     console.error('Error en verificación:', error);
     res.status(500).json({ error: 'Error en el servidor' });
