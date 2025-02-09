@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { usePhrases } from '@/lib/hooks/usePhrases';
 import { FreeLimitAlert } from './FreeLimitAlert';
@@ -134,7 +135,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
           <SignInForm onAuthSuccess={handleAuthSuccess} />
         )}
         {showAuthModal === 'signup' && (
-          <SignUpForm onAuthSuccess={handleAuthSuccess} />
+          <SignUpForm />
         )}
       </>
     );
