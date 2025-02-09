@@ -1,10 +1,11 @@
+
 interface PricingCardProps {
   title: string;
   price: number;
   description: string;
   features: string[];
   interval: string;
-  onSubscribe: () => void;
+  onSubscribe: () => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -48,11 +49,22 @@ export function PricingCard({
           ))}
         </ul>
         <button
-          onClick={onSubscribe}
+          onClick={() => !isLoading && onSubscribe()}
           disabled={isLoading}
-          className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md shadow-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
         >
-          {isLoading ? "Procesando..." : "Suscribirse"}
+          {isLoading ? (
+            "Procesando..."
+          ) : (
+            <>
+              <img 
+                src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/sidebar/mercado-pago.svg" 
+                alt="MercadoPago" 
+                className="h-5 w-auto"
+              />
+              <span>Pagar con Mercado Pago</span>
+            </>
+          )}
         </button>
       </div>
     </div>

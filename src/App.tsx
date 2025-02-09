@@ -5,11 +5,12 @@ import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { useTheme } from './contexts/ThemeContext';
 import { Header } from './components/Header';
 import { PhrasesContainer } from './components/phrases/PhrasesContainer';
-import { ToastContainer } from './hooks/use-toast';
+import { ToastContainer } from '@/hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Route, Routes } from 'react-router-dom';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import { PricingModal } from './components/subscription/PricingModal';
+import { PremiumBanner } from './components/subscription/PremiumBanner';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -120,6 +121,10 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
           <Route path="/" element={
             <div className="max-w-4xl mx-auto px-4 py-8">
+              {user?.role !== 'premium' && user?.role !== 'admin' && (
+                <PremiumBanner onUpgrade={() => setShowPricingModal(true)} />
+              )}
+
               <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
                 <p className="text-lg font-bold min-h-[28px]">{typedText}</p>
               </div>
