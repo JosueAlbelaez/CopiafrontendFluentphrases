@@ -211,7 +211,10 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
       )}
 
       <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
-      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
+      <PricingModal 
+        isOpen={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+      />
     </div>
   );
 }
