@@ -1,3 +1,4 @@
+
 import { connectDB } from '@/lib/config/db';
 import { User } from '@/lib/models/User';
 import { generateToken } from '@/lib/utils/jwt';
