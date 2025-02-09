@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { useTheme } from './contexts/ThemeContext';
 import { Header } from './components/Header';
 import { PhrasesContainer } from './components/phrases/PhrasesContainer';
+import { ToastContainer } from './hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Route, Routes } from 'react-router-dom';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
@@ -288,6 +290,8 @@ function App() {
         </div>
       </footer>
 
+      <ToastContainer />
+      
       <PricingModal 
         isOpen={showPricingModal}
         onClose={() => setShowPricingModal(false)}
