@@ -69,7 +69,15 @@ function App() {
     const storedToken = localStorage.getItem('token');
     
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setUser(null);
+      }
     } else {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
