@@ -55,11 +55,25 @@ export function PricingPlans() {
     try {
       setLoadingPlan(planId);
       
-      // Verificar la sesión del usuario
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
+      // Verificar la sesión del usuario de manera más robusta
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        throw new Error(sessionError.message);
+      }
+
+      if (!sessionData.session) {
         throw new Error("Debes iniciar sesión para suscribirte");
       }
+
+      // Verificar que tenemos el usuario activo
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error("No se pudo verificar el usuario");
+      }
+
+      console.log("Usuario verificado:", user.email); // Debug log
 
       const selectedPlan = plans.find(plan => plan.id === planId);
       if (!selectedPlan) {
@@ -67,6 +81,12 @@ export function PricingPlans() {
       }
 
       const initPoint = await createPreference(selectedPlan.title, selectedPlan.price);
+      
+      if (!initPoint) {
+        throw new Error("Error al crear la preferencia de pago");
+      }
+
+      console.log("Punto de inicio de pago creado:", initPoint); // Debug log
       window.location.href = initPoint;
 
     } catch (error) {
