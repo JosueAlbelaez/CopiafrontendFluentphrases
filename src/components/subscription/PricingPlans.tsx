@@ -54,7 +54,6 @@ export function PricingPlans() {
     try {
       setLoadingPlan(planId);
 
-      // Verificamos si hay un token en localStorage
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
 
@@ -63,23 +62,22 @@ export function PricingPlans() {
         throw new Error("Debes iniciar sesión para suscribirte");
       }
 
-      console.log("Usuario autenticado:", JSON.parse(user)); // Debug log
+      console.log("Usuario autenticado:", JSON.parse(user));
 
-      // Buscamos el plan seleccionado
       const selectedPlan = plans.find(plan => plan.id === planId);
       if (!selectedPlan) {
         throw new Error("Plan no encontrado");
       }
 
-      console.log("Creando preferencia para el plan:", selectedPlan); // Debug log
+      console.log("Creando preferencia para el plan:", selectedPlan);
       const initPoint = await createPreference(selectedPlan.title, selectedPlan.price);
       
       if (!initPoint) {
         throw new Error("Error al crear la preferencia de pago");
       }
 
-      console.log("Redirigiendo a:", initPoint); // Debug log
-      window.location.href = initPoint;
+      console.log("Abriendo ventana de pago:", initPoint);
+      window.open(initPoint, '_blank', 'width=1000,height=800');
 
     } catch (error) {
       console.error('Error en suscripción:', error);

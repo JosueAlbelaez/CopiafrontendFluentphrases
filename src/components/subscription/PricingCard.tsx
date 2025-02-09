@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Check } from 'lucide-react';
 
 interface PricingCardProps {
@@ -21,6 +20,12 @@ export function PricingCard({
   onSubscribe,
   isLoading = false,
 }: PricingCardProps) {
+  const handleClick = async () => {
+    if (!isLoading) {
+      await onSubscribe();
+    }
+  };
+
   return (
     <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
       <div className="p-6">
@@ -41,7 +46,7 @@ export function PricingCard({
           ))}
         </ul>
         <button
-          onClick={() => !isLoading && onSubscribe()}
+          onClick={handleClick}
           disabled={isLoading}
           className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
         >
