@@ -29,7 +29,8 @@ export default async function handler(req: any, res: any) {
       lastName,
       email,
       password,
-      verificationToken
+      verificationToken,
+      isEmailVerified: false
     });
 
     await user.save();

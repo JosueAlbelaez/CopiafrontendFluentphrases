@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator, passwordValidator } from '@/lib/validators';
@@ -82,7 +83,7 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/signup', {
+      await axios.post('/api/auth/signup', {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
@@ -91,10 +92,10 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
 
       toast({
         title: "Registro exitoso",
-        description: "Por favor, verifica tu correo electrónico para completar el registro.",
+        description: "Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y sigue las instrucciones para activar tu cuenta.",
       });
 
-      onAuthSuccess();
+      // Ya no llamamos a onAuthSuccess() aquí, ya que el usuario debe verificar su correo primero
 
     } catch (error: any) {
       if (error.response?.status === 409) {
