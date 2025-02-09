@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { usePhrases } from '@/lib/hooks/usePhrases';
 import { FreeLimitAlert } from './FreeLimitAlert';
 import { PhraseProgress } from './PhraseProgress';
-import { UserCircle2, LogIn } from 'lucide-react';
+import { UserCircle2, LogIn, Lock } from 'lucide-react';
 import { SignInForm } from '../auth/SignInForm';
 import { SignUpForm } from '../auth/SignUpForm';
 import { TableView } from './TableView';
@@ -16,6 +16,8 @@ const TABLE_VIEW_CATEGORIES = [
   'Prepositions and Conjunctions',
   'Articles, Determiners and Interjections',
 ];
+
+const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
 
 interface PhrasesContainerProps {
   language: string;
@@ -43,6 +45,12 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const ITEMS_PER_PAGE = 50;
   const isPremium = userRole === 'premium' || userRole === 'admin';
 
+  useEffect(() => {
+    if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
+      setShowPricingModal(true);
+    }
+  }, [category, isPremium, isAuthenticated]);
+
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
     const shuffled = [...phrases].sort(() => Math.random() - 0.5);
@@ -63,14 +71,6 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   useEffect(() => {
     setCurrentPage(0);
   }, [category, language]);
-
-  // Verificar si la categoría es premium
-  useEffect(() => {
-    const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
-    if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
-      setShowPricingModal(true);
-    }
-  }, [category, isPremium, isAuthenticated]);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
@@ -139,6 +139,27 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
           <SignUpForm onAuthSuccess={handleAuthSuccess} />
         )}
       </>
+    );
+  }
+
+  // Verificar si la categoría es premium y el usuario no es premium
+  if (category && !FREE_CATEGORIES.includes(category) && !isPremium) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 space-y-6">
+        <Lock className="w-16 h-16 text-yellow-500" />
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+          Contenido Premium
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
+          Esta categoría está disponible solo para usuarios premium. Actualiza tu cuenta para acceder a todo el contenido.
+        </p>
+        <button
+          onClick={() => setShowPricingModal(true)}
+          className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+        >
+          Ver planes premium
+        </button>
+      </div>
     );
   }
 
