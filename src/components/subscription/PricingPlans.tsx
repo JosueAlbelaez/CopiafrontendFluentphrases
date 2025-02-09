@@ -54,39 +54,45 @@ export function PricingPlans() {
   const handleSubscribe = async (planId: string) => {
     try {
       setLoadingPlan(planId);
-      
-      // Verificar la sesión del usuario de manera más robusta
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
+
+      // Primero verificamos si hay una sesión activa
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log("Sesión actual:", session); // Debug log
+
       if (sessionError) {
-        throw new Error(sessionError.message);
+        console.error("Error al obtener sesión:", sessionError);
+        throw new Error("Error al verificar la sesión");
       }
 
-      if (!sessionData.session) {
+      // Si no hay sesión, el usuario no está autenticado
+      if (!session) {
+        console.error("No hay sesión activa");
         throw new Error("Debes iniciar sesión para suscribirte");
       }
 
-      // Verificar que tenemos el usuario activo
+      // Obtenemos los datos del usuario
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
+      console.log("Usuario actual:", user); // Debug log
+
       if (userError || !user) {
+        console.error("Error al obtener usuario:", userError);
         throw new Error("No se pudo verificar el usuario");
       }
 
-      console.log("Usuario verificado:", user.email); // Debug log
-
+      // Buscamos el plan seleccionado
       const selectedPlan = plans.find(plan => plan.id === planId);
       if (!selectedPlan) {
         throw new Error("Plan no encontrado");
       }
 
+      console.log("Creando preferencia para el plan:", selectedPlan); // Debug log
       const initPoint = await createPreference(selectedPlan.title, selectedPlan.price);
       
       if (!initPoint) {
         throw new Error("Error al crear la preferencia de pago");
       }
 
-      console.log("Punto de inicio de pago creado:", initPoint); // Debug log
+      console.log("Redirigiendo a:", initPoint); // Debug log
       window.location.href = initPoint;
 
     } catch (error) {
