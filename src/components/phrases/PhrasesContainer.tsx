@@ -145,7 +145,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   // Verificar si la categoría es premium y el usuario no es premium
   if (category && !FREE_CATEGORIES.includes(category) && !isPremium) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 space-y-6">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-6">
         <Lock className="w-16 h-16 text-yellow-500" />
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
           Contenido Premium
