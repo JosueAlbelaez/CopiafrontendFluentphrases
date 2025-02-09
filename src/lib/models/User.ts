@@ -1,3 +1,4 @@
+
 import mongoose, { Model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -38,7 +39,11 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
     enum: ['free', 'premium', 'admin'],
     default: 'free'
   },
-  isEmailVerified: { type: Boolean, default: false },
+  isEmailVerified: { 
+    type: Boolean, 
+    default: false,
+    required: true
+  },
   verificationToken: String,
   resetPasswordToken: String,
   resetPasswordExpires: Date,

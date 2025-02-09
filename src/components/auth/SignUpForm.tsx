@@ -1,14 +1,9 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator, passwordValidator } from '@/lib/validators';
 import axios from 'axios';
 
-interface SignUpFormProps {
-  onAuthSuccess: () => void;
-}
-
-export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
+export function SignUpForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -94,8 +89,6 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
         title: "Registro exitoso",
         description: "Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y sigue las instrucciones para activar tu cuenta.",
       });
-
-      // Ya no llamamos a onAuthSuccess() aquí, ya que el usuario debe verificar su correo primero
 
     } catch (error: any) {
       if (error.response?.status === 409) {
