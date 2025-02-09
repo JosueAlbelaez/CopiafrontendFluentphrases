@@ -23,9 +23,10 @@ interface PhrasesContainerProps {
   onPremiumCategorySelect: () => void;
 }
 
-export function PhrasesContainer({ language, category, onPremiumCategorySelect }: PhrasesContainerProps) {
+export function PhrasesContainer({ language, category }: PhrasesContainerProps) {
   const [showAuthModal, setShowAuthModal] = useState<'signin' | 'signup' | null>(null);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -182,7 +183,7 @@ export function PhrasesContainer({ language, category, onPremiumCategorySelect }
       )}
 
       <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
+      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
     </div>
   );
 }
-

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -63,10 +62,6 @@ function App() {
     }
     
     setSelectedCategory(category);
-  };
-
-  const handlePremiumCategorySelect = () => {
-    setShowPricingModal(true);
   };
 
   useEffect(() => {
@@ -185,7 +180,6 @@ function App() {
                     <PhrasesContainer
                       language={selectedLanguage}
                       category={selectedCategory}
-                      onPremiumCategorySelect={handlePremiumCategorySelect}
                     />
                   </div>
                 </div>
