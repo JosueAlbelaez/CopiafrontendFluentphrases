@@ -8,7 +8,7 @@ import { generateToken, verifyToken } from './src/lib/utils/jwt';
 import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-import { sendPasswordResetEmail } from './src/lib/utils/email';
+import { sendPasswordResetEmail, sendVerificationEmail } from './src/lib/utils/email';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 dotenv.config();
@@ -66,33 +66,71 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
     }
 
+    // Generar token de verificación
+    const verificationToken = generateToken({ email }, '24h');
+
     const user = new User({
       firstName,
       lastName,
       email,
       password,
       role: 'free',
-      isEmailVerified: true,
+      isEmailVerified: false,
+      verificationToken,
       dailyPhrasesCount: 0,
       lastPhrasesReset: new Date()
     });
 
     await user.save();
 
-    const token = generateToken({ userId: user._id });
+    // Enviar correo de verificación
+    try {
+      await sendVerificationEmail(email, verificationToken);
+      console.log('Correo de verificación enviado exitosamente');
+    } catch (emailError) {
+      console.error('Error al enviar correo de verificación:', emailError);
+      // No retornamos error al cliente, pero logueamos el problema
+    }
 
     res.status(201).json({
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role
-      }
+      message: 'Usuario registrado exitosamente. Por favor verifica tu correo electrónico.'
     });
   } catch (error) {
     console.error('Error en registro:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Ruta para verificar email
+app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ error: 'Token no proporcionado' });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.email) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const user = await User.findOne({ 
+      email: decoded.email,
+      verificationToken: token
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado o token inválido' });
+    }
+
+    user.isEmailVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.json({ message: 'Email verificado exitosamente' });
+  } catch (error) {
+    console.error('Error en verificación de email:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
@@ -106,6 +144,13 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
     if (!user) {
       console.log('Usuario no encontrado:', email);
       return res.status(401).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Verificar si el correo está verificado
+    if (!user.isEmailVerified) {
+      return res.status(403).json({ 
+        error: 'Por favor verifica tu correo electrónico antes de iniciar sesión'
+      });
     }
 
     console.log('Usuario encontrado, verificando contraseña');
