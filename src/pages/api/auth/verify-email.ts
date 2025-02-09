@@ -1,7 +1,7 @@
 
 import { connectDB } from '@/lib/config/db';
 import { User } from '@/lib/models/User';
-import { verifyToken } from '@/lib/utils/jwt';
+import { verifyToken, generateToken } from '@/lib/utils/jwt';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
