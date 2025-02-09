@@ -58,7 +58,7 @@ export function PricingCard({
           ) : (
             <>
               <img 
-                src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/sidebar/mercado-pago.svg" 
+                src="https://www.mercadopago.com/mph-assets/logo-mercadopago__small@2x.png" 
                 alt="MercadoPago" 
                 className="h-5 w-auto"
               />
