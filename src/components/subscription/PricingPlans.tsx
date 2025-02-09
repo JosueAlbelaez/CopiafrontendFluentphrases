@@ -55,9 +55,9 @@ export function PricingPlans() {
     try {
       setLoadingPlan(planId);
       
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      // Verificar la sesión del usuario
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
         throw new Error("Debes iniciar sesión para suscribirte");
       }
 
@@ -70,6 +70,7 @@ export function PricingPlans() {
       window.location.href = initPoint;
 
     } catch (error) {
+      console.error('Error en suscripción:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Error al procesar la suscripción",
