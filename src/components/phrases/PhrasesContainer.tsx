@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { usePhrases } from '@/lib/hooks/usePhrases';
 import { FreeLimitAlert } from './FreeLimitAlert';
@@ -46,10 +45,10 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const isPremium = userRole === 'premium' || userRole === 'admin';
 
   useEffect(() => {
-    if (category && !FREE_CATEGORIES.includes(category) && !isPremium && isAuthenticated) {
+    if (category && !FREE_CATEGORIES.includes(category) && !isPremium) {
       setShowPricingModal(true);
     }
-  }, [category, isPremium, isAuthenticated]);
+  }, [category, isPremium]);
 
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
@@ -57,10 +56,9 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
     return shuffled.slice(0, count);
   };
 
-  let filteredPhrases =
-    category && category !== 'Todas las categorías'
-      ? allPhrases.filter((phrase) => phrase.category === category)
-      : allPhrases;
+  let filteredPhrases = category && category !== 'Todas las categorías'
+    ? allPhrases.filter((phrase) => phrase.category === category)
+    : allPhrases;
 
   if (isPremium && category === 'Todas las categorías') {
     filteredPhrases = getRandomPhrases(filteredPhrases, 10);
@@ -142,7 +140,6 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
     );
   }
 
-  // Verificar si la categoría es premium y el usuario no es premium
   if (category && !FREE_CATEGORIES.includes(category) && !isPremium) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-6">

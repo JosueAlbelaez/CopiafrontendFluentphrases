@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -56,6 +55,11 @@ function App() {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    
+    if (!FREE_CATEGORIES.includes(category) && (!user || (user?.role !== 'premium' && user?.role !== 'admin'))) {
+      setShowPricingModal(true);
+      return;
+    }
   };
 
   useEffect(() => {
@@ -157,16 +161,12 @@ function App() {
                         <option value="">Todas las categorías</option>
                         {categories[selectedLanguage as keyof typeof categories].map((category) => {
                           const isFreeCategory = FREE_CATEGORIES.includes(category);
-                          const isPremiumUser = user?.role === 'premium' || user?.role === 'admin';
-                          const isDisabled = !isPremiumUser && !isFreeCategory;
-                          
                           return (
                             <option 
                               key={category} 
                               value={category}
-                              disabled={isDisabled}
                             >
-                              {category} {isDisabled ? '🔒' : ''}
+                              {category} {!isFreeCategory ? '🔒' : ''}
                             </option>
                           );
                         })}
