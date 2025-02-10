@@ -116,6 +116,8 @@ function App() {
     };
   }, []);
 
+  const isPremiumUser = user?.role === 'premium' || user?.role === 'admin';
+
   return (
     <div className={`min-h-screen flex flex-col ${
       isDarkMode
@@ -136,7 +138,7 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/" element={
             <div className="max-w-4xl mx-auto px-4 py-8">
-              {user?.role !== 'premium' && user?.role !== 'admin' && (
+              {!isPremiumUser && (
                 <PremiumBanner onUpgrade={() => setShowPricingModal(true)} />
               )}
 
@@ -177,7 +179,7 @@ function App() {
                               key={category} 
                               value={category}
                             >
-                              {category} {!isFreeCategory ? '🔒' : ''}
+                              {category} {!isFreeCategory && !isPremiumUser ? '🔒' : ''}
                             </option>
                           );
                         })}
