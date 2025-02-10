@@ -8,7 +8,7 @@ const plans = [
   {
     id: "monthly",
     title: "Plan Mensual",
-    price: 6,
+    price: 5.99,
     interval: "mes",
     description: "Acceso completo por un mes",
     features: [
@@ -21,7 +21,7 @@ const plans = [
   {
     id: "biannual",
     title: "Plan Semestral",
-    price: 30,
+    price: 29.99,
     interval: "6 meses",
     description: "Ahorra con 6 meses de acceso",
     features: [
@@ -34,7 +34,7 @@ const plans = [
   {
     id: "annual",
     title: "Plan Anual",
-    price: 50,
+    price: 49.99,
     interval: "año",
     description: "La mejor relación calidad-precio",
     features: [
