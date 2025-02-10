@@ -341,7 +341,7 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
       body: {
         items: [
           {
-            id: `ITEM-${Date.now()}`, // Agregamos un ID único
+            id: `ITEM-${Date.now()}`,
             title,
             unit_price: Number(price),
             currency_id: currency,
