@@ -1,6 +1,6 @@
-
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { connectDB } from './src/lib/config/db';
 import { User } from './src/lib/models/User';
 import { Phrase } from './src/lib/models/Phrase';
@@ -18,8 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
-connectDB();
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Categorías gratuitas
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
@@ -371,7 +370,11 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
   }
 });
 
+// Agregar esta ruta al final para manejar todas las rutas del frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
-
