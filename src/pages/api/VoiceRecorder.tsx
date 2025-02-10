@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Mic, Square} from 'lucide-react';
 import { calculateSimilarity } from '../../utils/levenshtein';
 
-
 interface VoiceRecorderProps {
   targetPhrase: string;
   isDarkMode: boolean;

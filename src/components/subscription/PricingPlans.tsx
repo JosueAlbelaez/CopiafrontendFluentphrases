@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PricingCard } from "./PricingCard";
-import { supabase } from "@/lib/supabase";
+import { createPreference } from "@/lib/mercadopago";
 
 const plans = [
   {
     id: "monthly",
     title: "Plan Mensual",
-    price: 6,
+    price: 5.99,
     interval: "mes",
     description: "Acceso completo por un mes",
     features: [
@@ -20,7 +20,7 @@ const plans = [
   {
     id: "biannual",
     title: "Plan Semestral",
-    price: 30,
+    price: 29.99,
     interval: "6 meses",
     description: "Ahorra con 6 meses de acceso",
     features: [
@@ -33,7 +33,7 @@ const plans = [
   {
     id: "annual",
     title: "Plan Anual",
-    price: 50,
+    price: 49.99,
     interval: "año",
     description: "La mejor relación calidad-precio",
     features: [
@@ -52,20 +52,34 @@ export function PricingPlans() {
   const handleSubscribe = async (planId: string) => {
     try {
       setLoadingPlan(planId);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+
+      if (!token || !user) {
+        console.error("No hay token o usuario en localStorage");
         throw new Error("Debes iniciar sesión para suscribirte");
       }
 
-      // Aquí irá la lógica de Stripe que implementaremos después
-      toast({
-        title: "Próximamente",
-        description: "La funcionalidad de pagos estará disponible pronto",
-      });
+      console.log("Usuario autenticado:", JSON.parse(user));
+
+      const selectedPlan = plans.find(plan => plan.id === planId);
+      if (!selectedPlan) {
+        throw new Error("Plan no encontrado");
+      }
+
+      console.log("Creando preferencia para el plan:", selectedPlan);
+      const initPoint = await createPreference(selectedPlan.title, selectedPlan.price);
+      
+      if (!initPoint) {
+        throw new Error("Error al crear la preferencia de pago");
+      }
+
+      console.log("Abriendo ventana de pago:", initPoint);
+      window.open(initPoint, '_blank', 'width=1000,height=800');
 
     } catch (error) {
+      console.error('Error en suscripción:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Error al procesar la suscripción",
@@ -78,12 +92,6 @@ export function PricingPlans() {
 
   return (
     <div className="container mx-auto py-12 px-4">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Planes de Suscripción</h2>
-        <p className="text-gray-600">
-          Elige el plan que mejor se adapte a tus necesidades
-        </p>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {plans.map((plan) => (
           <PricingCard

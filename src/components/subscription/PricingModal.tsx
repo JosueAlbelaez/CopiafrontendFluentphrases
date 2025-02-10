@@ -25,7 +25,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
             Mejora tu experiencia
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
-            PLANES DE SUSCRIPCIÓN. Elige el plan que mejor se adapte a tus necesidades
+            Accede a todas las categorías y funciones premium con nuestros planes de suscripción
           </p>
         </div>
   

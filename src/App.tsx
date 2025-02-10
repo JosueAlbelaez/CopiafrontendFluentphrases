@@ -1,13 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { useTheme } from './contexts/ThemeContext';
 import { Header } from './components/Header';
 import { PhrasesContainer } from './components/phrases/PhrasesContainer';
-import { ToastContainer } from './hooks/use-toast';
+import { ToastContainer } from '@/hooks/use-toast';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { Route, Routes } from 'react-router-dom';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
+import { PricingModal } from './components/subscription/PricingModal';
+import { PremiumBanner } from './components/subscription/PremiumBanner';
+import VerifyEmail from './pages/VerifyEmail';
 import logo from './assets/logo.png';
 
 const languages = ['English']; //, 'Portuguese'
@@ -42,6 +46,7 @@ function App() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>(DEFAULT_LANGUAGE);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [typedText, setTypedText] = useState('');
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const currentYear = new Date().getFullYear();
   const [user, setUser] = useState<any>(null);
 
@@ -52,6 +57,11 @@ function App() {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    
+    if (!FREE_CATEGORIES.includes(category) && (!user || (user?.role !== 'premium' && user?.role !== 'admin'))) {
+      setShowPricingModal(true);
+      return;
+    }
   };
 
   useEffect(() => {
@@ -59,7 +69,15 @@ function App() {
     const storedToken = localStorage.getItem('token');
     
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setUser(null);
+      }
     } else {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
@@ -98,6 +116,8 @@ function App() {
     };
   }, []);
 
+  const isPremiumUser = user?.role === 'premium' || user?.role === 'admin';
+
   return (
     <div className={`min-h-screen flex flex-col ${
       isDarkMode
@@ -115,8 +135,13 @@ function App() {
         <Routes>
           <Route path="/reset-password" element={<ResetPasswordForm />} />
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/" element={
             <div className="max-w-4xl mx-auto px-4 py-8">
+              {!isPremiumUser && (
+                <PremiumBanner onUpgrade={() => setShowPricingModal(true)} />
+              )}
+
               <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
                 <p className="text-lg font-bold min-h-[28px]">{typedText}</p>
               </div>
@@ -149,15 +174,12 @@ function App() {
                         <option value="">Todas las categorías</option>
                         {categories[selectedLanguage as keyof typeof categories].map((category) => {
                           const isFreeCategory = FREE_CATEGORIES.includes(category);
-                          const isDisabled = !user?.role?.includes('premium') && !isFreeCategory;
-                          
                           return (
                             <option 
                               key={category} 
                               value={category}
-                              disabled={isDisabled}
                             >
-                              {category} {isDisabled ? '🔒' : ''}
+                              {category} {!isFreeCategory && !isPremiumUser ? '🔒' : ''}
                             </option>
                           );
                         })}
@@ -177,8 +199,6 @@ function App() {
           } />
         </Routes>
       </main>
-
-      <ToastContainer />
 
       <footer className={`w-full text-gray-300 mt-8 ${isDarkMode ? 'bg-gray-900' : 'bg-blue-700'}`}>
         <div className="max-w-6xl mx-auto px-4 py-8">
@@ -287,6 +307,13 @@ function App() {
           </div>
         </div>
       </footer>
+
+      <ToastContainer />
+      
+      <PricingModal 
+        isOpen={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+      />
     </div>
   );
 }

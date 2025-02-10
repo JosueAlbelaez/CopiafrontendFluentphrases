@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { usePhrases } from '@/lib/hooks/usePhrases';
 import { FreeLimitAlert } from './FreeLimitAlert';
 import { PhraseProgress } from './PhraseProgress';
-import { UserCircle2, LogIn } from 'lucide-react';
+import { UserCircle2, LogIn, Lock } from 'lucide-react';
 import { SignInForm } from '../auth/SignInForm';
 import { SignUpForm } from '../auth/SignUpForm';
 import { TableView } from './TableView';
 import { DefaultView } from './DefaultView';
+import { PricingModal } from '../subscription/PricingModal';
 
 const TABLE_VIEW_CATEGORIES = [
   '1000 Nouns',
@@ -14,6 +15,8 @@ const TABLE_VIEW_CATEGORIES = [
   'Prepositions and Conjunctions',
   'Articles, Determiners and Interjections',
 ];
+
+const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
 
 interface PhrasesContainerProps {
   language: string;
@@ -23,6 +26,7 @@ interface PhrasesContainerProps {
 export function PhrasesContainer({ language, category }: PhrasesContainerProps) {
   const [showAuthModal, setShowAuthModal] = useState<'signin' | 'signup' | null>(null);
   const [showLimitAlert, setShowLimitAlert] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -40,16 +44,21 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
   const ITEMS_PER_PAGE = 50;
   const isPremium = userRole === 'premium' || userRole === 'admin';
 
+  useEffect(() => {
+    if (category && !FREE_CATEGORIES.includes(category) && !isPremium) {
+      setShowPricingModal(true);
+    }
+  }, [category, isPremium]);
+
   const getRandomPhrases = (phrases: any[], count: number) => {
     if (phrases.length <= count) return phrases;
     const shuffled = [...phrases].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
   };
 
-  let filteredPhrases =
-    category && category !== 'Todas las categorías'
-      ? allPhrases.filter((phrase) => phrase.category === category)
-      : allPhrases;
+  let filteredPhrases = category && category !== 'Todas las categorías'
+    ? allPhrases.filter((phrase) => phrase.category === category)
+    : allPhrases;
 
   if (isPremium && category === 'Todas las categorías') {
     filteredPhrases = getRandomPhrases(filteredPhrases, 10);
@@ -63,8 +72,7 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
-    // Aquí puedes agregar cualquier lógica adicional que necesites después del éxito de autenticación
-    window.location.reload(); // Recargar la página para actualizar el estado de autenticación
+    window.location.reload();
   };
 
   const handlePhraseInteraction = async () => {
@@ -123,12 +131,57 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
         </div>
 
         {showAuthModal === 'signin' && (
-          <SignInForm onAuthSuccess={handleAuthSuccess} />
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowAuthModal(null)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  ✕
+                </button>
+              </div>
+              <SignInForm onAuthSuccess={handleAuthSuccess} />
+            </div>
+          </div>
         )}
+        
         {showAuthModal === 'signup' && (
-          <SignUpForm onAuthSuccess={handleAuthSuccess} />
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowAuthModal(null)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  ✕
+                </button>
+              </div>
+              <SignUpForm />
+            </div>
+          </div>
         )}
       </>
+    );
+  }
+
+  if (category && !FREE_CATEGORIES.includes(category) && !isPremium) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-6">
+        <Lock className="w-16 h-16 text-yellow-500" />
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+          Contenido Premium
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
+          Esta categoría está disponible solo para usuarios premium. Actualiza tu cuenta para acceder a todo el contenido.
+        </p>
+        <button
+          onClick={() => setShowPricingModal(true)}
+          className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+        >
+          Ver planes premium
+        </button>
+      </div>
     );
   }
 
@@ -179,9 +232,11 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
         />
       )}
 
-      {!isPremium && (
-        <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
-      )}
+      <FreeLimitAlert isOpen={showLimitAlert} onClose={() => setShowLimitAlert(false)} />
+      <PricingModal 
+        isOpen={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+      />
     </div>
   );
 }

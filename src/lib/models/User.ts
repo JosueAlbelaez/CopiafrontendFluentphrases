@@ -1,3 +1,4 @@
+
 import mongoose, { Model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -38,7 +39,11 @@ const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>({
     enum: ['free', 'premium', 'admin'],
     default: 'free'
   },
-  isEmailVerified: { type: Boolean, default: false },
+  isEmailVerified: { 
+    type: Boolean, 
+    default: false,
+    required: true
+  },
   verificationToken: String,
   resetPasswordToken: String,
   resetPasswordExpires: Date,
@@ -70,25 +75,21 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   try {
-    console.log(`[comparePassword] Comparando contraseña para: ${this.email}`);
-    console.log(`[comparePassword] Contraseña ingresada por el usuario: "${candidatePassword}"`);
-    console.log(`[comparePassword] Hash almacenado en BD: ${this.password}`);
-
-    // Asegurar que no haya espacios en la contraseña ingresada
+    console.log('Comparing passwords for user:', this.email);
+    console.log('Stored hash:', this.password);
+    
+    // Normalize the candidate password
     const normalizedPassword = candidatePassword.trim();
-    console.log(`[comparePassword] Contraseña normalizada: "${normalizedPassword}"`);
-
-    // Comparar con bcrypt
-    console.log(`[comparePassword] Contraseña ingresada: ${normalizedPassword}`);
-    console.log(`[comparePassword] Hash almacenado: ${this.password}`);
+    console.log('Normalized candidate password:', normalizedPassword);
+    
+    // Direct comparison using bcrypt
     const isMatch = await bcrypt.compare(normalizedPassword, this.password);
-    console.log(`[comparePassword] ¿Las contraseñas coinciden?: ${isMatch}`);
-
+    console.log('Passwords match?:', isMatch);
     return isMatch;
   } catch (error) {
-    console.error('[comparePassword] Error comparando contraseñas:', error);
+    console.error('Error comparing passwords:', error);
     throw error;
   }
 };

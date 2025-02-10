@@ -1,3 +1,4 @@
+
 import nodemailer from 'nodemailer';
 
 const EMAIL_USER = 'info.fluentphrases@gmail.com';
@@ -14,6 +15,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: false
   },
   debug: true,
   logger: true
@@ -33,12 +37,15 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   console.log('URL de verificación generada:', verificationUrl);
   
   const mailOptions = {
-    from: EMAIL_USER,
+    from: {
+      name: 'Fluent Phrases',
+      address: EMAIL_USER
+    },
     to: email,
-    subject: 'Verifica tu correo electrónico',
+    subject: 'Verifica tu correo electrónico - Fluent Phrases',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2b6cb0;">¡Bienvenido a nuestra aplicación!</h1>
+        <h1 style="color: #2b6cb0;">¡Bienvenido a Fluent Phrases!</h1>
         <p>Gracias por registrarte. Para completar tu registro y comenzar a usar la aplicación, por favor verifica tu correo electrónico:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${verificationUrl}" 
@@ -58,7 +65,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     const info = await transporter.sendMail(mailOptions);
     console.log('Correo de verificación enviado:', info.response);
     console.log('ID del mensaje:', info.messageId);
-    console.log('URL de vista previa:', nodemailer.getTestMessageUrl(info));
     return info;
   } catch (err) {
     const error = err as Error;

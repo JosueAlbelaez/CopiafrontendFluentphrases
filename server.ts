@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './src/lib/config/db';
@@ -7,7 +8,8 @@ import { generateToken, verifyToken } from './src/lib/utils/jwt';
 import { startOfDay } from 'date-fns';
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-import { sendPasswordResetEmail } from './src/lib/utils/email';
+import { sendPasswordResetEmail, sendVerificationEmail } from './src/lib/utils/email';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 dotenv.config();
 
@@ -49,6 +51,11 @@ const authenticateToken = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+// Configurar MercadoPago
+const client = new MercadoPagoConfig({ 
+  accessToken: process.env.MP_ACCESS_TOKEN || '' 
+});
+
 // Rutas de autenticación
 app.post('/api/auth/signup', async (req: Request, res: Response) => {
   try {
@@ -59,33 +66,71 @@ app.post('/api/auth/signup', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
     }
 
+    // Generar token de verificación
+    const verificationToken = generateToken({ email }, '24h');
+
     const user = new User({
       firstName,
       lastName,
       email,
       password,
       role: 'free',
-      isEmailVerified: true,
+      isEmailVerified: false,
+      verificationToken,
       dailyPhrasesCount: 0,
       lastPhrasesReset: new Date()
     });
 
     await user.save();
 
-    const token = generateToken({ userId: user._id });
+    // Enviar correo de verificación
+    try {
+      await sendVerificationEmail(email, verificationToken);
+      console.log('Correo de verificación enviado exitosamente');
+    } catch (emailError) {
+      console.error('Error al enviar correo de verificación:', emailError);
+      // No retornamos error al cliente, pero logueamos el problema
+    }
 
     res.status(201).json({
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role
-      }
+      message: 'Usuario registrado exitosamente. Por favor verifica tu correo electrónico.'
     });
   } catch (error) {
     console.error('Error en registro:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Ruta para verificar email
+app.post('/api/auth/verify-email', async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ error: 'Token no proporcionado' });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.email) {
+      return res.status(400).json({ error: 'Token inválido o expirado' });
+    }
+
+    const user = await User.findOne({ 
+      email: decoded.email,
+      verificationToken: token
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado o token inválido' });
+    }
+
+    user.isEmailVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.json({ message: 'Email verificado exitosamente' });
+  } catch (error) {
+    console.error('Error en verificación de email:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
@@ -99,6 +144,13 @@ app.post('/api/auth/signin', async (req: Request, res: Response) => {
     if (!user) {
       console.log('Usuario no encontrado:', email);
       return res.status(401).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Verificar si el correo está verificado
+    if (!user.isEmailVerified) {
+      return res.status(403).json({ 
+        error: 'Por favor verifica tu correo electrónico antes de iniciar sesión'
+      });
     }
 
     console.log('Usuario encontrado, verificando contraseña');
@@ -276,6 +328,46 @@ app.post('/api/phrases/increment', authenticateToken, async (req: Request, res: 
   } catch (error) {
     console.error('Error al incrementar contador:', error);
     res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Ruta para crear preferencia de MercadoPago
+app.post('/api/create-preference', async (req: Request, res: Response) => {
+  try {
+    const { title, price, currency } = req.body;
+
+    const preference = new Preference(client);
+    const preferenceData = {
+      body: {
+        items: [
+          {
+            id: `ITEM-${Date.now()}`,
+            title,
+            unit_price: Number(price),
+            currency_id: currency,
+            quantity: 1,
+            description: `Suscripción a ${title}`,
+            category_id: 'subscriptions'
+          }
+        ],
+        back_urls: {
+          success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/success`,
+          failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/failure`,
+          pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/pending`
+        },
+        auto_return: 'approved',
+        statement_descriptor: 'Fluent Phrases'
+      }
+    };
+
+    const response = await preference.create(preferenceData);
+    res.json({
+      id: response.id,
+      init_point: response.init_point
+    });
+  } catch (error) {
+    console.error('Error creating preference:', error);
+    res.status(500).json({ error: 'Error al crear la preferencia de pago' });
   }
 });
 
