@@ -132,10 +132,35 @@ export function PhrasesContainer({ language, category }: PhrasesContainerProps) 
         </div>
 
         {showAuthModal === 'signin' && (
-          <SignInForm onAuthSuccess={handleAuthSuccess} />
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowAuthModal(null)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  ✕
+                </button>
+              </div>
+              <SignInForm onAuthSuccess={handleAuthSuccess} />
+            </div>
+          </div>
         )}
+        
         {showAuthModal === 'signup' && (
-          <SignUpForm />
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowAuthModal(null)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  ✕
+                </button>
+              </div>
+              <SignUpForm />
+            </div>
+          </div>
         )}
       </>
     );
