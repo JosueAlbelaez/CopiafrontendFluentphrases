@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
@@ -13,6 +12,8 @@ import { PricingModal } from './components/subscription/PricingModal';
 import { PremiumBanner } from './components/subscription/PremiumBanner';
 import VerifyEmail from './pages/VerifyEmail';
 import logo from './assets/logo.png';
+import { CookieBanner } from './components/CookieBanner';
+import { LandingPage } from './pages/LandingPage';
 
 const languages = ['English']; //, 'Portuguese'
 const DEFAULT_LANGUAGE = 'English';
@@ -126,188 +127,80 @@ function App() {
         ? 'bg-gradient-to-b from-green-400 to-green-800'
         : 'bg-gradient-to-b from-blue-400 to-blue-800'
     }`}>
-      <Header 
-        user={user} 
-        onLogout={handleLogout}
-      />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={
+          <>
+            <Header user={user} onLogout={handleLogout} />
+            <main className="flex-grow">
+              <div className="max-w-4xl mx-auto px-4 py-8">
+                {!isPremiumUser && (
+                  <PremiumBanner onUpgrade={() => setShowPricingModal(true)} />
+                )}
 
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/reset-password" element={<ResetPasswordForm />} />
-          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/" element={
-            <div className="max-w-4xl mx-auto px-4 py-8">
-              {!isPremiumUser && (
-                <PremiumBanner onUpgrade={() => setShowPricingModal(true)} />
-              )}
+                <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
+                  <p className="text-lg font-bold min-h-[28px]">{typedText}</p>
+                </div>
 
-              <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
-                <p className="text-lg font-bold min-h-[28px]">{typedText}</p>
-              </div>
-
-              <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white/70'} rounded-xl shadow-md overflow-hidden`}>
-                <div className="p-6">
-                  <div className="space-y-4">
-                    <select
-                      className={`w-full p-2 border rounded ${
-                        isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''
-                      }`}
-                      value={selectedLanguage}
-                      onChange={(e) => handleLanguageChange(e.target.value)}
-                    >
-                      {languages.map((language) => (
-                        <option key={language} value={language}>
-                          {language}
-                        </option>
-                      ))}
-                    </select>
-
-                    <div className="relative">
+                <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white/70'} rounded-xl shadow-md overflow-hidden`}>
+                  <div className="p-6">
+                    <div className="space-y-4">
                       <select
                         className={`w-full p-2 border rounded ${
                           isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''
                         }`}
-                        value={selectedCategory}
-                        onChange={(e) => handleCategoryChange(e.target.value)}
+                        value={selectedLanguage}
+                        onChange={(e) => handleLanguageChange(e.target.value)}
                       >
-                        <option value="">Todas las categorías</option>
-                        {categories[selectedLanguage as keyof typeof categories].map((category) => {
-                          const isFreeCategory = FREE_CATEGORIES.includes(category);
-                          return (
-                            <option 
-                              key={category} 
-                              value={category}
-                            >
-                              {category} {!isFreeCategory && !isPremiumUser ? '🔒' : ''}
-                            </option>
-                          );
-                        })}
+                        {languages.map((language) => (
+                          <option key={language} value={language}>
+                            {language}
+                          </option>
+                        ))}
                       </select>
-                    </div>
-                  </div>
 
-                  <div className="mt-6">
-                    <PhrasesContainer
-                      language={selectedLanguage}
-                      category={selectedCategory}
-                    />
+                      <div className="relative">
+                        <select
+                          className={`w-full p-2 border rounded ${
+                            isDarkMode ? 'bg-gray-700 text-white border-gray-600' : ''
+                          }`}
+                          value={selectedCategory}
+                          onChange={(e) => handleCategoryChange(e.target.value)}
+                        >
+                          <option value="">Todas las categorías</option>
+                          {categories[selectedLanguage as keyof typeof categories].map((category) => {
+                            const isFreeCategory = FREE_CATEGORIES.includes(category);
+                            return (
+                              <option 
+                                key={category} 
+                                value={category}
+                              >
+                                {category} {!isFreeCategory && !isPremiumUser ? '🔒' : ''}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <PhrasesContainer
+                        language={selectedLanguage}
+                        category={selectedCategory}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          } />
-        </Routes>
-      </main>
+            </main>
+          </>
+        } />
+        <Route path="/reset-password" element={<ResetPasswordForm />} />
+        <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+      </Routes>
 
-      <footer className={`w-full text-gray-300 mt-8 ${isDarkMode ? 'bg-gray-900' : 'bg-blue-700'}`}>
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <img src={logo} alt="Logo" className="w-24 h-24"/>
-              <p className="text-sm">
-                Transformando el aprendizaje de idiomas a través de la tecnología y la innovación.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-white">Enlaces Rápidos</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="/" className="hover:text-white transition-colors">Inicio</a>
-                </li>
-                <li>
-                  <a href="/about" className="hover:text-white transition-colors">Sobre Nosotros</a>
-                </li>
-                <li>
-                  <a href="/pricing" className="hover:text-white transition-colors">Planes</a>
-                </li>
-                <li>
-                  <a href="/blog" className="hover:text-white transition-colors">Blog</a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-white">Contacto</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <a href="mailto:contact@example.com" className="hover:text-white transition-colors">
-                    Info@fluentphrases.com
-                  </a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  <a href="tel:+1234567890" className="hover:text-white transition-colors">
-                    +54-1162908729
-                  </a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>CIUDAD DE BUENOS AIRES, ARGENTINA</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-white">Síguenos</h3>
-              <div className="flex space-x-4 mb-6">
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pink-500 transition-colors"
-                >
-                  <FaInstagram size={24} />
-                </a>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-blue-500 transition-colors"
-                >
-                  <FaLinkedin size={24} />
-                </a>
-                <a
-                  href="https://tiktok.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  <FaTiktok size={24} />
-                </a>
-              </div>
-              <a
-                href="/contact"
-                className="inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-              >
-                Contactar
-              </a>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 mt-8 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-sm">
-                © {currentYear} Fluent Phrases. Todos los derechos reservados.
-              </div>
-              <div className="flex space-x-6 text-sm">
-                <a href="/privacy" className="hover:text-white transition-colors">
-                  Política de Privacidad
-                </a>
-                <a href="/terms" className="hover:text-white transition-colors">
-                  Términos de Uso
-                </a>
-                <a href="/cookies" className="hover:text-white transition-colors">
-                  Política de Cookies
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-
+      <CookieBanner />
       <ToastContainer />
       
       <PricingModal 
