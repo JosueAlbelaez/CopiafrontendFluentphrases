@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInForm } from '@/components/auth/SignInForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
-import { PricingPlans } from '@/pages/api/subscription/PricingPlans';
+import { PricingPlans } from '@/components/subscription/PricingPlans';
 
 export const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -292,7 +293,7 @@ export const LandingPage = () => {
               <X className="h-6 w-6" />
             </button>
             <div className="p-6">
-              <SignUpForm />
+              <SignUpForm onAuthSuccess={handleAuthSuccess} />
             </div>
           </div>
         </div>
