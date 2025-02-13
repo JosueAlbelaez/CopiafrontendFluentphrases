@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator, passwordValidator } from '@/lib/validators';
 import axios from 'axios';
 
-interface SignUpFormProps {
+export interface SignUpFormProps {
   onAuthSuccess?: () => void;
 }
 
