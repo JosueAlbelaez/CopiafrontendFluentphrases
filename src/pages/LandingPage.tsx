@@ -1,11 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { SignInForm } from '@/components/auth/SignInForm';
+import { SignUpForm } from '@/components/auth/SignUpForm';
+import { PricingPlans } from '@/pages/api/subscription/PricingPlans';
 
 export const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +20,12 @@ export const LandingPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleAuthSuccess = () => {
+    setShowSignInModal(false);
+    setShowSignUpModal(false);
+    navigate('/app');
+  };
 
   return (
     <div className="min-h-screen">
@@ -36,13 +47,18 @@ export const LandingPage = () => {
               <a href="#about" className="text-gray-700 hover:text-blue-600">Sobre Nosotros</a>
               <a href="#plans" className="text-gray-700 hover:text-blue-600">Planes</a>
               <a href="#blog" className="text-gray-700 hover:text-blue-600">Blog</a>
-              <Link to="/login" className="text-gray-700 hover:text-blue-600">Iniciar Sesión</Link>
-              <Link 
-                to="/register" 
+              <button 
+                onClick={() => setShowSignInModal(true)} 
+                className="text-gray-700 hover:text-blue-600"
+              >
+                Iniciar Sesión
+              </button>
+              <button 
+                onClick={() => setShowSignUpModal(true)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Registrarse
-              </Link>
+              </button>
             </div>
 
             {/* Mobile menu button */}
@@ -87,20 +103,24 @@ export const LandingPage = () => {
               >
                 Blog
               </a>
-              <Link 
-                to="/login" 
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-                onClick={() => setIsMenuOpen(false)}
+              <button 
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setShowSignInModal(true);
+                }}
+                className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600"
               >
                 Iniciar Sesión
-              </Link>
-              <Link 
-                to="/register" 
-                className="block px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+              </button>
+              <button 
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setShowSignUpModal(true);
+                }}
+                className="block w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Registrarse
-              </Link>
+              </button>
             </div>
           </div>
         )}
@@ -123,7 +143,10 @@ export const LandingPage = () => {
           </h1>
           <div className="flex flex-col md:flex-row justify-center gap-6">
             <div className="flex flex-col items-center">
-              <button className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium">
+              <button 
+                onClick={() => navigate('/app')}
+                className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium"
+              >
                 Frases Útiles
               </button>
               <p className="text-white mt-2 text-sm">
@@ -223,7 +246,7 @@ export const LandingPage = () => {
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
             Nuestros Planes
           </h2>
-          {/* Aquí se integrará el modal de precios existente */}
+          <PricingPlans />
         </div>
       </section>
 
@@ -242,7 +265,38 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* El footer existente se mantendrá aquí */}
+      {/* Modals */}
+      {showSignInModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full">
+            <button
+              onClick={() => setShowSignInModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div className="p-6">
+              <SignInForm onAuthSuccess={handleAuthSuccess} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSignUpModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full">
+            <button
+              onClick={() => setShowSignUpModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <div className="p-6">
+              <SignUpForm />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

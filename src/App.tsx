@@ -1,6 +1,5 @@
+
 import { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
-import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { useTheme } from './contexts/ThemeContext';
 import { Header } from './components/Header';
 import { PhrasesContainer } from './components/phrases/PhrasesContainer';
@@ -11,12 +10,10 @@ import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import { PricingModal } from './components/subscription/PricingModal';
 import { PremiumBanner } from './components/subscription/PremiumBanner';
 import VerifyEmail from './pages/VerifyEmail';
-import logo from './assets/logo.png';
 import { CookieBanner } from './components/CookieBanner';
 import { LandingPage } from './pages/LandingPage';
 
-const languages = ['English']; //, 'Portuguese'
-const DEFAULT_LANGUAGE = 'English';
+const languages = ['English'];
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
 
 const categories = {
@@ -31,24 +28,15 @@ const categories = {
     'Science and Innovation', 'Politics and Current Events', 'History and Historical Events',
     'Law and Legal Terminology', 'Advanced Debate and Rhetoric', 'Travel for Study or Work Abroad',
     'Financial and Investment Terminology', 'Philosophy and Ethics', 'Development and Software Engineering'
-  ],
-  Portuguese: [
-    'Cumprimentos e Apresentações', 'Diretrizes Básicas', 'Procedimentos em Escritórios',
-    'Família e Casa', 'Saúde e Bem-Estar', 'Compras e Negócios',
-    'Viagem e Turismo', 'Família e Relacionamentos Pessoais', 'Trabalho e Profissões',
-    'Educação e Aprendizagem', 'Comida e Restaurantes', 'Emergências e Segurança',
-    'Entretenimento e Lazer', 'Tecnologia e Comunicação', 'Cultura e Sociedade',
-    'Opiniões e Debates'
   ]
 };
 
 function App() {
   const { isDarkMode } = useTheme();
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(DEFAULT_LANGUAGE);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(languages[0]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [typedText, setTypedText] = useState('');
   const [showPricingModal, setShowPricingModal] = useState(false);
-  const currentYear = new Date().getFullYear();
   const [user, setUser] = useState<any>(null);
 
   const handleLanguageChange = (language: string) => {
