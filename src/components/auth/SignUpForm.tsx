@@ -92,13 +92,12 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
 
       toast({
         title: "Registro exitoso",
-        description: "¡Tu cuenta ha sido creada exitosamente!",
+        description: "¡Tu cuenta ha sido creada! Por favor revisa tu correo electrónico para verificar tu cuenta.",
       });
 
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      onAuthSuccess?.();
-
+      // Redirigir al inicio
+      window.location.href = '/';
+      
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast({
