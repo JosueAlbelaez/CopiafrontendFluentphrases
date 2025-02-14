@@ -1,3 +1,4 @@
+
 import { Moon, Sun, LogOut, Home, Menu } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import logo from '@/assets/logo.png';
@@ -6,6 +7,7 @@ import { useState } from 'react';
 interface HeaderProps {
   user?: {
     firstName: string;
+    role?: 'free' | 'premium' | 'admin';
   } | null;
   onLogout?: () => void;
 }
@@ -125,4 +127,3 @@ export function Header({ user, onLogout }: HeaderProps) {
     </header>
   );
 }
-

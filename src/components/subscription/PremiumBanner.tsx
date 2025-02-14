@@ -3,9 +3,12 @@ import { Sparkles } from 'lucide-react';
 
 interface PremiumBannerProps {
   onUpgrade: () => void;
+  userRole?: 'free' | 'premium' | 'admin';
 }
 
-export function PremiumBanner({ onUpgrade }: PremiumBannerProps) {
+export function PremiumBanner({ onUpgrade, userRole = 'free' }: PremiumBannerProps) {
+  if (userRole !== 'free') return null;
+
   return (
     <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 p-4 rounded-lg shadow-md mb-6">
       <div className="flex items-center justify-between">
