@@ -1,3 +1,4 @@
+
 import { PlayCircle, Clock } from 'lucide-react';
 import VoiceRecorder from '../VoiceRecorder';
 import { PhraseProgress } from './PhraseProgress';
@@ -37,50 +38,44 @@ export function TableView({
 
   const renderPaginationButtons = () => (
     <div className="flex justify-center items-center gap-4">
-    <button
-      onClick={() => onPageChange?.(currentPage - 1)}
-      disabled={currentPage === 0 || isProcessing}
-      className={`px-4 py-1 
-        sm:px-6 sm:py-2 
-        md:px-8 md:py-3 
-        ${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'} 
-        text-white rounded-lg disabled:opacity-50 transition-colors`}
-    >
-      Previous
-    </button>
-    <span
-      className={`text-sm font-medium ${
+      <button
+        onClick={() => onPageChange?.(currentPage - 1)}
+        disabled={currentPage === 0 || isProcessing}
+        className={`px-4 py-1 
+          sm:px-6 sm:py-2 
+          md:px-8 md:py-3 
+          ${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'} 
+          text-white rounded-lg disabled:opacity-50 transition-colors`}
+      >
+        Previous
+      </button>
+      <span className={`text-sm font-medium transition-colors ${
         isDarkMode ? 'text-gray-200' : 'text-gray-800'
-      }`}
-    >
-      Pág. {currentPage + 1} de {totalPages}
-    </span>
-    <button
-      onClick={() => onPageChange?.(currentPage + 1)}
-      disabled={currentPage >= totalPages - 1 || isProcessing}
-      className={`px-4 py-1 
-        sm:px-6 sm:py-2 
-        md:px-8 md:py-3 
-        ${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'} 
-        text-white rounded-lg disabled:opacity-50 transition-colors`}
-    >
-      Next
-    </button>
-  </div>
-  
-
+      }`}>
+        Pág. {currentPage + 1} de {totalPages}
+      </span>
+      <button
+        onClick={() => onPageChange?.(currentPage + 1)}
+        disabled={currentPage >= totalPages - 1 || isProcessing}
+        className={`px-4 py-1 
+          sm:px-6 sm:py-2 
+          md:px-8 md:py-3 
+          ${isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'} 
+          text-white rounded-lg disabled:opacity-50 transition-colors`}
+      >
+        Next
+      </button>
+    </div>
   );
 
   return (
     <div className="w-full space-y-6">
-      {/* Botones de navegación superiores */}
       {totalPages > 1 && (
         <div className="mb-6">
           {renderPaginationButtons()}
         </div>
       )}
 
-      {/* Tabla de frases */}
       <div className={`${isDarkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow overflow-hidden`}>
         <table className="min-w-full">
           <tbody>
@@ -89,12 +84,12 @@ export function TableView({
                 <td className="p-2 sm:p-4">
                   <div className="flex-col justify-center items-center">
                     <div className="flex-1">
-                      <p className={`text-base sm:text-lg font-bold ${
+                      <p className={`text-base sm:text-lg font-bold transition-colors ${
                         isDarkMode ? 'text-green-400' : 'text-green-800'
                       } mb-1`}>
                         {phrase.targetText}
                       </p>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+                      <p className={`text-sm transition-colors ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                         {phrase.translatedText}
                       </p>
                     </div>
@@ -126,7 +121,6 @@ export function TableView({
                       />
                     </div>
                     <div id={`similarity-result-${index}`} className="h-9 pb-2">
-                      {/* El resultado de la comparación aparecerá aquí */}
                     </div>
                   </div>
                 </td>
@@ -136,14 +130,12 @@ export function TableView({
         </table>
       </div>
 
-      {/* Botones de navegación inferiores */}
       {totalPages > 1 && (
         <div className="mt-6">
           {renderPaginationButtons()}
         </div>
       )}
 
-      {/* Barra de progreso */}
       <div className="mt-6">
         <PhraseProgress 
           current={(currentPage * 50) + phrases.length}

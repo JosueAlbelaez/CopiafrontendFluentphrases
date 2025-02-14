@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Clock, PlayCircle } from 'lucide-react';
 import VoiceRecorder from '../VoiceRecorder';
@@ -18,7 +19,7 @@ interface DefaultViewProps {
   isProcessing: boolean;
   language: string;
   category?: string;
-  showProgress: boolean; // Nueva prop para controlar la barra de progreso
+  showProgress: boolean;
 }
 
 export const DefaultView = ({
@@ -26,12 +27,11 @@ export const DefaultView = ({
   incrementCount,
   isDarkMode,
   isProcessing,
-  showProgress, // Recibe la nueva prop
+  showProgress,
 }: DefaultViewProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [resetRecorder, setResetRecorder] = useState(false);
 
-  // Verificar si no hay frases disponibles
   if (!phrases || phrases.length === 0) {
     return (
       <div className="text-center p-8">
@@ -42,7 +42,6 @@ export const DefaultView = ({
     );
   }
 
-  // Obtener la frase actual
   const currentPhrase = phrases[currentIndex];
 
   if (!currentPhrase) {
@@ -55,7 +54,6 @@ export const DefaultView = ({
     );
   }
 
-  // Función para avanzar a la siguiente frase
   const handleNext = () => {
     if (currentIndex < phrases.length - 1 && !isProcessing) {
       setCurrentIndex(currentIndex + 1);
@@ -66,7 +64,6 @@ export const DefaultView = ({
     }
   };
 
-  // Función para retroceder a la frase anterior
   const handlePrevious = () => {
     if (currentIndex > 0 && !isProcessing) {
       setCurrentIndex(currentIndex - 1);
@@ -74,7 +71,6 @@ export const DefaultView = ({
     }
   };
 
-  // Función para reproducir la frase actual
   const handleSpeak = async (rate: number = 1) => {
     if ('speechSynthesis' in window && !isProcessing) {
       try {
@@ -90,7 +86,6 @@ export const DefaultView = ({
 
   return (
     <div className="text-center space-y-6">
-      {/* Botones de navegación */}
       <div className="flex justify-center space-x-4 mb-4">
         <button
           onClick={handlePrevious}
@@ -112,7 +107,6 @@ export const DefaultView = ({
         </button>
       </div>
 
-      {/* Barra de progreso */}
       {showProgress && (
         <div className="mb-4">
           <PhraseProgress
@@ -123,21 +117,17 @@ export const DefaultView = ({
         </div>
       )}
 
-      {/* Frase actual */}
       <div className="mb-4">
-        <h2
-          className={`text-2xl font-bold mb-2 ${
-            isDarkMode ? 'text-green-300' : 'text-green-800'
-          }`}
-        >
+        <h2 className={`text-2xl font-bold mb-2 transition-colors ${
+          isDarkMode ? 'text-green-300' : 'text-green-800'
+        }`}>
           {currentPhrase.targetText}
         </h2>
-        <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+        <p className={`transition-colors ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
           {currentPhrase.translatedText}
         </p>
       </div>
 
-      {/* Botones de interacción */}
       <div className="flex justify-center space-x-1">
         <button
           onClick={() => handleSpeak(1)}
@@ -167,9 +157,7 @@ export const DefaultView = ({
         />
       </div>
 
-      {/* Resultado de la comparación */}
       <div id="similarity-result" className="h-8">
-        {/* El resultado de la comparación aparecerá aquí */}
       </div>
     </div>
   );
