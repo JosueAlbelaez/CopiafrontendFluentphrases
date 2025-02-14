@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInForm } from '@/components/auth/SignInForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
 import { PricingPlans } from '@/components/subscription/PricingPlans';
+import 'animate.css';
 
 export const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +14,12 @@ export const LandingPage = () => {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const navigate = useNavigate();
 
+  // Referencias para las imágenes
+  const aboutImageRef = useRef<HTMLImageElement>(null);
+  const featureImage1Ref = useRef<HTMLImageElement>(null);
+  const featureImage2Ref = useRef<HTMLImageElement>(null);
+  const featureImage3Ref = useRef<HTMLImageElement>(null);
+
   useEffect(() => {
     const handleScroll = () => {
       setHasScrolled(window.scrollY > 20);
@@ -19,6 +27,31 @@ export const LandingPage = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.2
+    };
+
+    const handleIntersect = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+          observer.unobserve(entry.target);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersect, observerOptions);
+
+    // Observar todas las imágenes
+    if (aboutImageRef.current) observer.observe(aboutImageRef.current);
+    if (featureImage1Ref.current) observer.observe(featureImage1Ref.current);
+    if (featureImage2Ref.current) observer.observe(featureImage2Ref.current);
+    if (featureImage3Ref.current) observer.observe(featureImage3Ref.current);
+
+    return () => observer.disconnect();
   }, []);
 
   const handleAuthSuccess = () => {
@@ -181,9 +214,10 @@ export const LandingPage = () => {
             </div>
             <div className="relative h-96">
               <img
+                ref={aboutImageRef}
                 src="https://images.pexels.com/photos/3182773/pexels-photo-3182773.jpeg"
                 alt="Estudiantes aprendiendo"
-                className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl"
+                className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl opacity-0"
               />
             </div>
           </div>
@@ -198,9 +232,10 @@ export const LandingPage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center p-6">
               <img
+                ref={featureImage1Ref}
                 src="https://images.pexels.com/photos/6929167/pexels-photo-6929167.jpeg"
                 alt="Método natural"
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full h-48 object-cover rounded-lg mb-4 opacity-0"
               />
               <h3 className="text-xl font-semibold mb-2">Método Natural</h3>
               <p className="text-gray-600">
@@ -209,9 +244,10 @@ export const LandingPage = () => {
             </div>
             <div className="text-center p-6">
               <img
+                ref={featureImage2Ref}
                 src="https://images.pexels.com/photos/1438072/pexels-photo-1438072.jpeg"
                 alt="Práctica constante"
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full h-48 object-cover rounded-lg mb-4 opacity-0"
               />
               <h3 className="text-xl font-semibold mb-2">Práctica Constante</h3>
               <p className="text-gray-600">
@@ -220,9 +256,10 @@ export const LandingPage = () => {
             </div>
             <div className="text-center p-6">
               <img
+                ref={featureImage3Ref}
                 src="https://images.pexels.com/photos/3182773/pexels-photo-3182773.jpeg"
                 alt="Contenido contextual"
-                className="w-full h-48 object-cover rounded-lg mb-4"
+                className="w-full h-48 object-cover rounded-lg mb-4 opacity-0"
               />
               <h3 className="text-xl font-semibold mb-2">Contenido Contextual</h3>
               <p className="text-gray-600">
