@@ -8,7 +8,7 @@ export interface SignUpFormProps {
   onAuthSuccess?: () => void;
 }
 
-export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
+export function SignUpForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -83,7 +83,7 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/signup', {
+      await axios.post('/api/auth/signup', {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
@@ -95,8 +95,10 @@ export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
         description: "¡Tu cuenta ha sido creada! Por favor revisa tu correo electrónico para verificar tu cuenta.",
       });
 
-      // Redirigir al inicio
-      window.location.href = '/';
+      // Esperar 3 segundos antes de redirigir
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 3000);
       
     } catch (error: any) {
       if (error.response?.status === 409) {
