@@ -29,7 +29,6 @@ export const LandingPage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         hasScrolled ? 'bg-white shadow-md' : 'bg-transparent'
       }`}>
@@ -41,7 +40,6 @@ export const LandingPage = () => {
               </Link>
             </div>
 
-            {/* Desktop menu */}
             <div className="hidden md:flex items-center space-x-4">
               <Link to="/" className="text-gray-700 hover:text-blue-600">Inicio</Link>
               <a href="#about" className="text-gray-700 hover:text-blue-600">Sobre Nosotros</a>
@@ -61,7 +59,6 @@ export const LandingPage = () => {
               </button>
             </div>
 
-            {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden text-gray-700 hover:text-blue-600"
@@ -71,7 +68,6 @@ export const LandingPage = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-white shadow-lg">
             <div className="px-2 pt-2 pb-3 space-y-1">
@@ -126,7 +122,6 @@ export const LandingPage = () => {
         )}
       </nav>
 
-      {/* Hero Section with Video Background */}
       <section className="relative h-screen flex items-center">
         <video
           autoPlay
@@ -165,7 +160,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* About Section */}
       <section id="about" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -196,7 +190,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
@@ -240,7 +233,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Plans Section */}
       <section id="plans" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
@@ -250,7 +242,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Blog Section */}
       <section id="blog" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
@@ -265,7 +256,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Modals */}
       {showSignInModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full my-8">
@@ -292,7 +282,7 @@ export const LandingPage = () => {
               <X className="h-6 w-6" />
             </button>
             <div className="p-6 max-h-[90vh] overflow-y-auto">
-              <SignUpForm onAuthSuccess={handleAuthSuccess} />
+              <SignUpForm />
             </div>
           </div>
         </div>
