@@ -86,12 +86,13 @@ export const DefaultView = ({
 
   return (
     <div className="text-center space-y-6">
+      {/* Navigation buttons */}
       <div className="flex justify-center space-x-4 mb-4">
         <button
           onClick={handlePrevious}
           disabled={currentIndex === 0 || isProcessing}
           className={`px-4 py-2 ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           Previous
@@ -100,7 +101,7 @@ export const DefaultView = ({
           onClick={handleNext}
           disabled={currentIndex === phrases.length - 1 || isProcessing}
           className={`px-4 py-2 ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           Next
@@ -118,12 +119,14 @@ export const DefaultView = ({
       )}
 
       <div className="mb-4">
-        <h2 className={`text-2xl font-bold mb-2 transition-colors ${
-          isDarkMode ? 'text-green-300' : 'text-green-800'
+        <h2 className={`text-2xl font-bold mb-2 ${
+          isDarkMode ? 'text-green-300' : 'text-green-900'
         }`}>
           {currentPhrase.targetText}
         </h2>
-        <p className={`transition-colors ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+        <p className={`${
+          isDarkMode ? 'text-gray-300' : 'text-gray-900'
+        }`}>
           {currentPhrase.translatedText}
         </p>
       </div>
@@ -133,7 +136,7 @@ export const DefaultView = ({
           onClick={() => handleSpeak(1)}
           disabled={isProcessing}
           className={`flex items-center justify-center px-2 py-1 text-sm min-w-[50px] md:px-4 md:py-2 md:text-base md:min-w-[70px] ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <PlayCircle className="mr-1 w-4 h-4 md:mr-2 md:w-5 md:h-5" />
@@ -143,7 +146,7 @@ export const DefaultView = ({
           onClick={() => handleSpeak(0.4)}
           disabled={isProcessing}
           className={`flex items-center justify-center px-2 py-1 text-sm min-w-[50px] md:px-4 md:py-2 md:text-base md:min-w-[70px] ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Clock className="mr-1 w-4 h-4 md:mr-2 md:w-5 md:h-5" />

@@ -80,16 +80,18 @@ export function TableView({
         <table className="min-w-full">
           <tbody>
             {phrases.map((phrase, index) => (
-              <tr key={index} className={`border-b-2 ${isDarkMode ? 'border-gray-600' : ''}`}>
+              <tr key={index} className={`border-b-2 ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
                 <td className="p-2 sm:p-4">
                   <div className="flex-col justify-center items-center">
                     <div className="flex-1">
-                      <p className={`text-base sm:text-lg font-bold transition-colors ${
-                        isDarkMode ? 'text-green-400' : 'text-green-800'
+                      <p className={`text-base sm:text-lg font-bold ${
+                        isDarkMode ? 'text-green-300' : 'text-green-900'
                       } mb-1`}>
                         {phrase.targetText}
                       </p>
-                      <p className={`text-sm transition-colors ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+                      <p className={`text-sm ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
+                      }`}>
                         {phrase.translatedText}
                       </p>
                     </div>
