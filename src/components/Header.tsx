@@ -16,6 +16,12 @@ export function Header({ user, onLogout }: HeaderProps) {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   return (
     <header
       className={`py-4 transition-colors ${
@@ -66,9 +72,9 @@ export function Header({ user, onLogout }: HeaderProps) {
               )}
             </button>
 
-            {user && onLogout && (
+            {user && (
               <button
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-700 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
@@ -81,18 +87,6 @@ export function Header({ user, onLogout }: HeaderProps) {
         {/* Menú móvil desplegable */}
         {isMobileMenuOpen && (
           <div className="mt-4 space-y-4 md:hidden">
-            <button
-              onClick={() => window.location.href = '/'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                isDarkMode
-                  ? 'bg-gray-800 hover:bg-gray-700'
-                  : 'bg-blue-400 hover:bg-blue-300'
-              } text-white transition-colors w-full`}
-            >
-              <Home className="w-4 h-4" />
-              <span>Inicio</span>
-            </button>
-
             {user && (
               <span className="block font-medium">
                 Hola, {user.firstName}
@@ -112,9 +106,9 @@ export function Header({ user, onLogout }: HeaderProps) {
               )}
             </button>
 
-            {user && onLogout && (
+            {user && (
               <button
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors w-full"
               >
                 <LogOut className="w-4 h-4" />
