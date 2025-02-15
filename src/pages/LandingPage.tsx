@@ -1,10 +1,11 @@
-
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Mail, Phone, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInForm } from '@/components/auth/SignInForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
 import { PricingPlans } from '@/components/subscription/PricingPlans';
+import { FaInstagram, FaLinkedin, FaTiktok } from 'react-icons/fa';
+import logo from '@/assets/logo.png';
 import 'animate.css';
 
 export const LandingPage = () => {
@@ -13,8 +14,9 @@ export const LandingPage = () => {
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
 
-  // Referencias para las imágenes
+  // Referencias para las imágenes y secciones
   const aboutImageRef = useRef<HTMLImageElement>(null);
   const featureImage1Ref = useRef<HTMLImageElement>(null);
   const featureImage2Ref = useRef<HTMLImageElement>(null);
@@ -29,30 +31,18 @@ export const LandingPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const observerOptions = {
-      threshold: 0.2
-    };
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsMenuOpen(false);
+  };
 
-    const handleIntersect = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate__animated', 'animate__fadeInUp');
-          observer.unobserve(entry.target);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersect, observerOptions);
-
-    // Observar todas las imágenes
-    if (aboutImageRef.current) observer.observe(aboutImageRef.current);
-    if (featureImage1Ref.current) observer.observe(featureImage1Ref.current);
-    if (featureImage2Ref.current) observer.observe(featureImage2Ref.current);
-    if (featureImage3Ref.current) observer.observe(featureImage3Ref.current);
-
-    return () => observer.disconnect();
-  }, []);
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMenuOpen(false);
+  };
 
   const handleAuthSuccess = () => {
     setShowSignInModal(false);
@@ -68,16 +58,16 @@ export const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link to="/" className="text-2xl font-bold text-blue-600">
+              <button onClick={scrollToTop} className="text-2xl font-bold text-blue-600">
                 FluentPhrases
-              </Link>
+              </button>
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              <Link to="/" className="text-gray-700 hover:text-blue-600">Inicio</Link>
-              <a href="#about" className="text-gray-700 hover:text-blue-600">Sobre Nosotros</a>
-              <a href="#plans" className="text-gray-700 hover:text-blue-600">Planes</a>
-              <a href="#blog" className="text-gray-700 hover:text-blue-600">Blog</a>
+              <button onClick={scrollToTop} className="text-gray-700 hover:text-blue-600">Inicio</button>
+              <button onClick={() => scrollToSection('about')} className="text-gray-700 hover:text-blue-600">Sobre Nosotros</button>
+              <button onClick={() => scrollToSection('plans')} className="text-gray-700 hover:text-blue-600">Planes</button>
+              <button onClick={() => scrollToSection('blog')} className="text-gray-700 hover:text-blue-600">Blog</button>
               <button 
                 onClick={() => setShowSignInModal(true)} 
                 className="text-gray-700 hover:text-blue-600"
@@ -104,34 +94,30 @@ export const LandingPage = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white shadow-lg">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link 
-                to="/" 
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-                onClick={() => setIsMenuOpen(false)}
+              <button 
+                onClick={scrollToTop}
+                className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600"
               >
                 Inicio
-              </Link>
-              <a 
-                href="#about" 
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-                onClick={() => setIsMenuOpen(false)}
+              </button>
+              <button 
+                onClick={() => scrollToSection('about')}
+                className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600"
               >
                 Sobre Nosotros
-              </a>
-              <a 
-                href="#plans" 
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-                onClick={() => setIsMenuOpen(false)}
+              </button>
+              <button 
+                onClick={() => scrollToSection('plans')}
+                className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600"
               >
                 Planes
-              </a>
-              <a 
-                href="#blog" 
-                className="block px-3 py-2 text-gray-700 hover:text-blue-600"
-                onClick={() => setIsMenuOpen(false)}
+              </button>
+              <button 
+                onClick={() => scrollToSection('blog')}
+                className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600"
               >
                 Blog
-              </a>
+              </button>
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);
@@ -292,6 +278,108 @@ export const LandingPage = () => {
           </button>
         </div>
       </section>
+
+      <footer className="w-full text-gray-300 mt-8 bg-blue-700">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+              <img src={logo} alt="Logo" className="w-24 h-24"/>
+              <p className="text-sm">
+                Transformando el aprendizaje de idiomas a través de la tecnología y la innovación.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white">Enlaces Rápidos</h3>
+              <ul className="space-y-2">
+                <li>
+                  <button onClick={scrollToTop} className="hover:text-white transition-colors">Inicio</button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('about')} className="hover:text-white transition-colors">Sobre Nosotros</button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('plans')} className="hover:text-white transition-colors">Planes</button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('blog')} className="hover:text-white transition-colors">Blog</button>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white">Contacto</h3>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  <a href="mailto:contact@example.com" className="hover:text-white transition-colors">
+                    Info@fluentphrases.com
+                  </a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  <a href="tel:+1234567890" className="hover:text-white transition-colors">
+                    +54-1162908729
+                  </a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>CIUDAD DE BUENOS AIRES, ARGENTINA</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-white">Síguenos</h3>
+              <div className="flex space-x-4 mb-6">
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-pink-500 transition-colors"
+                >
+                  <FaInstagram size={24} />
+                </a>
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-blue-500 transition-colors"
+                >
+                  <FaLinkedin size={24} />
+                </a>
+                <a
+                  href="https://vm.tiktok.com/ZMknnp6g5/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  <FaTiktok size={24} />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 mt-8 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <div className="text-sm">
+                © {currentYear} Fluent Phrases. Todos los derechos reservados.
+              </div>
+              <div className="flex space-x-6 text-sm">
+                <Link to="/privacy" className="hover:text-white transition-colors">
+                  Política de Privacidad
+                </Link>
+                <Link to="/terms" className="hover:text-white transition-colors">
+                  Términos de Uso
+                </Link>
+                <Link to="/cookies" className="hover:text-white transition-colors">
+                  Política de Cookies
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {showSignInModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
