@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useTheme } from './contexts/ThemeContext';
 import { Header } from './components/Header';
@@ -12,6 +11,9 @@ import { PremiumBanner } from './components/subscription/PremiumBanner';
 import VerifyEmail from './pages/VerifyEmail';
 import { CookieBanner } from './components/CookieBanner';
 import { LandingPage } from './pages/LandingPage';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsAndConditions } from './pages/TermsAndConditions';
+import { CookiesPolicy } from './pages/CookiesPolicy';
 
 const languages = ['English'];
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
@@ -121,11 +123,11 @@ function App() {
           <>
             <Header user={user} onLogout={handleLogout} />
             <main className="flex-grow">
-              <div className="max-w-4xl mx-auto px-4 py-8">
-                {!isPremiumUser && (
-                  <PremiumBanner onUpgrade={() => setShowPricingModal(true)} userRole={user?.role} />
-                )}
+              {!isPremiumUser && (
+                <PremiumBanner onUpgrade={() => setShowPricingModal(true)} userRole={user?.role} />
+              )}
 
+              <div className="max-w-4xl mx-auto px-4 py-8">
                 <div className={`text-center mb-8 ${isDarkMode ? 'text-yellow-400 drop-shadow-md' : 'text-green-200 drop-shadow-md' }`}>
                   <p className="text-lg font-bold min-h-[28px]">{typedText}</p>
                 </div>
@@ -186,6 +188,9 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="/forgot-password" element={<ForgotPasswordForm />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/cookies" element={<CookiesPolicy />} />
       </Routes>
 
       <CookieBanner />
