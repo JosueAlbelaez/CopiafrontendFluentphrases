@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -52,6 +53,41 @@ export interface Database {
           subscription_end_date?: string | null
           daily_phrases_count?: number
           last_phrases_reset?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      blog_posts: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          image_url: string
+          summary: string
+          reading_time: number
+          category: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          content: string
+          image_url: string
+          summary: string
+          reading_time?: number
+          category: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          content?: string
+          image_url?: string
+          summary?: string
+          reading_time?: number
+          category?: string
           created_at?: string
           updated_at?: string
         }

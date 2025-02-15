@@ -14,6 +14,8 @@ import { LandingPage } from './pages/LandingPage';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsAndConditions } from './pages/TermsAndConditions';
 import { CookiesPolicy } from './pages/CookiesPolicy';
+import { Blog } from './pages/Blog';
+import { BlogPost } from './pages/BlogPost';
 
 const languages = ['English'];
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
@@ -119,6 +121,8 @@ function App() {
     }`}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/app" element={
           <>
             <Header user={user} onLogout={handleLogout} />
