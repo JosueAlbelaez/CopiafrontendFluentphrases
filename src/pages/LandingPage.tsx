@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Mail, Phone, MapPin } from 'lucide-react';
+import { Menu, MapPin, Phone, Mail, X } from 'lucide-react';
+import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { SignInForm } from '@/components/auth/SignInForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
 import { PricingPlans } from '@/components/subscription/PricingPlans';
-import { FaInstagram, FaLinkedin, FaTiktok } from 'react-icons/fa';
 import logo from '@/assets/logo.png';
 import 'animate.css';
 
@@ -16,7 +16,6 @@ export const LandingPage = () => {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
 
-  // Referencias para las imágenes y secciones
   const aboutImageRef = useRef<HTMLImageElement>(null);
   const featureImage1Ref = useRef<HTMLImageElement>(null);
   const featureImage2Ref = useRef<HTMLImageElement>(null);
@@ -265,17 +264,20 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      <section id="blog" className="py-20">
+      <section id="blog" className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl font-bold text-blue-300 mb-6">
             Blog
           </h2>
-          <p className="text-gray-600 mb-8">
+          <p className="text-blue-200 mb-8">
             Próximamente encontrarás aquí artículos interesantes sobre el aprendizaje de idiomas
           </p>
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+          <Link 
+            to="/blog" 
+            className="inline-block bg-blue-900 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors"
+          >
             Explorar Blog
-          </button>
+          </Link>
         </div>
       </section>
 
