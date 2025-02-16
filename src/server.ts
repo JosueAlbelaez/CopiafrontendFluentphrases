@@ -3,8 +3,9 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import { connectDB } from '@/lib/config/db';
-import userRoutes from '@/routes/userRoutes';
+import { connectDB } from './lib/config/db';
+import userRoutes from './routes/userRoutes';
+import blogRoutes from './routes/blogRoutes';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ connectDB();
 
 // Rutas
 app.use('/api/users', userRoutes);
+app.use('/api/blog', blogRoutes);
 
 // Ruta base
 app.get('/', (_, res) => {

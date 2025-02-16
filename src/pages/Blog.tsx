@@ -1,11 +1,11 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, addTestBlogPost } from '@/lib/supabase';
 import { ArrowLeft, Clock, Tag } from 'lucide-react';
+import axios from 'axios';
 
 interface BlogPost {
-  id: string;
+  _id: string;
   title: string;
   summary: string;
   image_url: string;
@@ -25,19 +25,8 @@ export const Blog = () => {
 
   const fetchPosts = async () => {
     try {
-      let query = supabase
-        .from('blog_posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (selectedCategory) {
-        query = query.eq('category', selectedCategory);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setPosts(data || []);
+      const response = await axios.get('http://localhost:5000/api/blog');
+      setPosts(response.data);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
     } finally {
@@ -45,15 +34,20 @@ export const Blog = () => {
     }
   };
 
-  // Exponemos la función addTestBlogPost al objeto window para poder llamarla desde la consola
+  // Función para agregar post de prueba
+  const addTestPost = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/blog/test');
+      console.log('Post de prueba agregado:', response.data);
+      fetchPosts(); // Actualizamos la lista
+    } catch (error) {
+      console.error('Error al agregar post de prueba:', error);
+    }
+  };
+
+  // Exponemos la función al objeto window
   useEffect(() => {
-    (window as any).addTestBlogPost = async () => {
-      const result = await addTestBlogPost();
-      if (result) {
-        console.log('Artículo de prueba agregado con éxito:', result);
-        fetchPosts(); // Actualizamos la lista de posts
-      }
-    };
+    (window as any).addTestBlogPost = addTestPost;
   }, []);
 
   const categories = Array.from(new Set(posts.map(post => post.category)));
@@ -110,8 +104,8 @@ export const Blog = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post) => (
               <Link
-                key={post.id}
-                to={`/blog/${post.id}`}
+                key={post._id}
+                to={`/blog/${post._id}`}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <img
