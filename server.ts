@@ -395,6 +395,18 @@ app.get('/api/blog', async (_req: Request, res: Response) => {
   }
 });
 
+app.get('/api/blog/:id', async (req: Request, res: Response) => {
+  try {
+    const post = await BlogPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: 'Post no encontrado' });
+    }
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el post' });
+  }
+});
+
 app.post('/api/blog/test', async (_req: Request, res: Response) => {
   try {
     const testPost = new BlogPost({

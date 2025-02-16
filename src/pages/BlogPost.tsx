@@ -1,11 +1,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Clock, Calendar, Tag } from 'lucide-react';
+import axios from 'axios';
 
 interface BlogPost {
-  id: string;
+  _id: string;
   title: string;
   content: string;
   image_url: string;
@@ -25,14 +25,8 @@ export const BlogPost = () => {
 
   const fetchPost = async () => {
     try {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      setPost(data);
+      const response = await axios.get(`http://localhost:5000/api/blog/${id}`);
+      setPost(response.data);
     } catch (error) {
       console.error('Error fetching blog post:', error);
     } finally {
