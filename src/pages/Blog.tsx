@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase, addTestBlogPost } from '@/lib/supabase';
 import { ArrowLeft, Clock, Tag } from 'lucide-react';
 
 interface BlogPost {
@@ -44,6 +44,17 @@ export const Blog = () => {
       setLoading(false);
     }
   };
+
+  // Exponemos la función addTestBlogPost al objeto window para poder llamarla desde la consola
+  useEffect(() => {
+    (window as any).addTestBlogPost = async () => {
+      const result = await addTestBlogPost();
+      if (result) {
+        console.log('Artículo de prueba agregado con éxito:', result);
+        fetchPosts(); // Actualizamos la lista de posts
+      }
+    };
+  }, []);
 
   const categories = Array.from(new Set(posts.map(post => post.category)));
 
