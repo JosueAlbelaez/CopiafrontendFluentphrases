@@ -1,6 +1,5 @@
 
 import express from 'express';
-import { Types } from 'mongoose';
 import mongoose from 'mongoose';
 
 const router = express.Router();
@@ -21,7 +20,7 @@ const blogPostSchema = new mongoose.Schema({
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 
 // Ruta para obtener todos los posts
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
   try {
     const posts = await BlogPost.find().sort({ created_at: -1 });
     res.json(posts);
@@ -31,7 +30,7 @@ router.get('/', async (req, res) => {
 });
 
 // Ruta para crear un post de prueba
-router.post('/test', async (req, res) => {
+router.post('/test', async (_req, res) => {
   try {
     const testPost = new BlogPost({
       title: "5 Técnicas Efectivas para Aprender Inglés Naturalmente",
