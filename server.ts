@@ -29,8 +29,21 @@ const blogPostSchema = new mongoose.Schema({
   summary: String,
   reading_time: Number,
   category: String,
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now }
+  created_at: { 
+    type: Date, 
+    default: Date.now,
+    required: true 
+  },
+  updated_at: { 
+    type: Date, 
+    default: Date.now,
+    required: true 
+  }
+}, {
+  timestamps: { 
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+  }
 });
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
