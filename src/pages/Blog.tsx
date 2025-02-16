@@ -34,18 +34,16 @@ export const Blog = () => {
     }
   };
 
-  // Función para agregar post de prueba
   const addTestPost = async () => {
     try {
       const response = await axios.post('http://localhost:5000/api/blog/test');
       console.log('Post de prueba agregado:', response.data);
-      fetchPosts(); // Actualizamos la lista
+      fetchPosts();
     } catch (error) {
       console.error('Error al agregar post de prueba:', error);
     }
   };
 
-  // Exponemos la función al objeto window
   useEffect(() => {
     (window as any).addTestBlogPost = addTestPost;
   }, []);
@@ -106,25 +104,30 @@ export const Blog = () => {
               <Link
                 key={post._id}
                 to={`/blog/${post._id}`}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                className="group bg-white rounded-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative"
               >
-                <img
-                  src={post.image_url}
-                  alt={post.title}
-                  className="w-full h-48 object-cover"
-                />
+                <div className="relative overflow-hidden">
+                  <img
+                    src={post.image_url}
+                    alt={post.title}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {post.reading_time} min
                     </span>
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-full">
                       <Tag className="w-4 h-4" />
                       {post.category}
                     </span>
                   </div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">{post.title}</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    {post.title}
+                  </h2>
                   <p className="text-gray-600">{post.summary}</p>
                 </div>
               </Link>
