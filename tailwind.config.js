@@ -20,26 +20,26 @@ export default {
             color: '#374151',
             h2: {
               color: '#111827',
-              fontWeight: '800',           // Más negrita
-              fontSize: '2em',             // Más grande (32px)
-              marginTop: '2.5em',          // Más espacio arriba
-              marginBottom: '1.2em',       // Más espacio abajo
-              letterSpacing: '-0.02em',    // Mejor legibilidad
+              fontWeight: '700',           
+              fontSize: '1.5em',           // Más pequeño (24px)
+              marginTop: '1.5em',          // Menos espacio arriba
+              marginBottom: '0.8em',       // Menos espacio abajo
+              letterSpacing: '-0.02em',    
             },
             h3: {
               color: '#111827',
-              fontWeight: '700',           // Más negrita
-              fontSize: '1.5em',           // Más grande (24px)
-              marginTop: '2em',            // Más espacio arriba
-              marginBottom: '0.8em',       // Más espacio abajo
-              letterSpacing: '-0.01em',    // Mejor legibilidad
+              fontWeight: '600',           
+              fontSize: '1.25em',          // Más pequeño (20px)
+              marginTop: '1.2em',          // Menos espacio arriba
+              marginBottom: '0.6em',       // Menos espacio abajo
+              letterSpacing: '-0.01em',    
             },
             p: {
-              marginTop: '1.5em',          // Más espacio arriba
-              marginBottom: '1.5em',       // Más espacio abajo
-              lineHeight: '1.8',           // Mejor espaciado entre líneas
-              fontSize: '1.125rem',        // Tamaño base 18px
-              color: '#4B5563',           // Gris más oscuro para mejor contraste
+              marginTop: '1.5em',          
+              marginBottom: '1.5em',       
+              lineHeight: '1.8',           
+              fontSize: '1.125rem',        
+              color: '#4B5563',           
             },
             'ul > li': {
               paddingLeft: '1.5em',
@@ -60,11 +60,11 @@ export default {
             blockquote: {
               borderLeftColor: '#2563eb',
               backgroundColor: '#f3f4f6',
-              padding: '1.5em',            // Más padding
+              padding: '1.5em',            
               fontStyle: 'italic',
-              fontSize: '1.1em',           // Texto más grande
-              marginTop: '2em',            // Más espacio
-              marginBottom: '2em',         // Más espacio
+              fontSize: '1.1em',           
+              marginTop: '2em',            
+              marginBottom: '2em',         
             },
           },
         },
