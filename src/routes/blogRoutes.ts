@@ -29,6 +29,19 @@ router.get('/', async (_req, res) => {
   }
 });
 
+// Ruta para obtener un post específico
+router.get('/:id', async (req, res) => {
+  try {
+    const post = await BlogPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: 'Post no encontrado' });
+    }
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el post' });
+  }
+});
+
 // Ruta para crear un post de prueba
 router.post('/test', async (_req, res) => {
   try {
