@@ -78,26 +78,26 @@ export const BlogPost = () => {
           <img
             src={post.image_url}
             alt={post.title}
-            className="w-full h-64 object-cover"
+            className="w-full h-72 object-cover object-center"
           />
-          <div className="p-8">
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
-              <span className="flex items-center gap-1">
+          <div className="p-8 lg:p-12">
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
+              <span className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full">
                 <Clock className="w-4 h-4" />
                 {post.reading_time} min de lectura
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full">
                 <Calendar className="w-4 h-4" />
                 {new Date(post.created_at).toLocaleDateString()}
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full">
                 <Tag className="w-4 h-4" />
                 {post.category}
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">{post.title}</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-8 leading-tight">{post.title}</h1>
             <div 
-              className="prose max-w-none"
+              className="prose prose-lg lg:prose-xl mx-auto"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
