@@ -20,23 +20,26 @@ export default {
             color: '#374151',
             h2: {
               color: '#111827',
-              fontWeight: '700',
-              fontSize: '1.5em',
-              marginTop: '2em',
-              marginBottom: '1em',
+              fontWeight: '800',           // Más negrita
+              fontSize: '2em',             // Más grande (32px)
+              marginTop: '2.5em',          // Más espacio arriba
+              marginBottom: '1.2em',       // Más espacio abajo
+              letterSpacing: '-0.02em',    // Mejor legibilidad
             },
             h3: {
               color: '#111827',
-              fontWeight: '600',
-              fontSize: '1.25em',
-              marginTop: '1.6em',
-              marginBottom: '0.6em',
+              fontWeight: '700',           // Más negrita
+              fontSize: '1.5em',           // Más grande (24px)
+              marginTop: '2em',            // Más espacio arriba
+              marginBottom: '0.8em',       // Más espacio abajo
+              letterSpacing: '-0.01em',    // Mejor legibilidad
             },
             p: {
-              marginTop: '1.25em',
-              marginBottom: '1.25em',
-              lineHeight: '1.8',
-              fontSize: '1.125rem',
+              marginTop: '1.5em',          // Más espacio arriba
+              marginBottom: '1.5em',       // Más espacio abajo
+              lineHeight: '1.8',           // Mejor espaciado entre líneas
+              fontSize: '1.125rem',        // Tamaño base 18px
+              color: '#4B5563',           // Gris más oscuro para mejor contraste
             },
             'ul > li': {
               paddingLeft: '1.5em',
@@ -57,8 +60,11 @@ export default {
             blockquote: {
               borderLeftColor: '#2563eb',
               backgroundColor: '#f3f4f6',
-              padding: '1em',
+              padding: '1.5em',            // Más padding
               fontStyle: 'italic',
+              fontSize: '1.1em',           // Texto más grande
+              marginTop: '2em',            // Más espacio
+              marginBottom: '2em',         // Más espacio
             },
           },
         },
