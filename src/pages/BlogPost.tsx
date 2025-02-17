@@ -97,7 +97,7 @@ export const BlogPost = () => {
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-8 leading-tight">{post.title}</h1>
             <div 
-              className="prose mx-auto"
+              className="prose prose-headings:mt-6 prose-headings:mb-4 max-w-none"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
