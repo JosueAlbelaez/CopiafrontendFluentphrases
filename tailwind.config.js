@@ -18,6 +18,14 @@ export default {
           css: {
             maxWidth: 'none',
             color: '#374151',
+            h1: {
+              color: '#111827',
+              fontWeight: '800',           
+              fontSize: '2em',             // 32px
+              marginTop: '1.5em',          
+              marginBottom: '0.8em',       
+              letterSpacing: '-0.025em',   
+            },
             h2: {
               color: '#111827',
               fontWeight: '700',           
