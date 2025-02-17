@@ -21,18 +21,26 @@ export default {
             h2: {
               color: '#111827',
               fontWeight: '700',           
-              fontSize: '1.5em',           // Más pequeño (24px)
-              marginTop: '1.5em',          // Menos espacio arriba
-              marginBottom: '0.8em',       // Menos espacio abajo
+              fontSize: '1.5em',           // 24px
+              marginTop: '1.2em',          
+              marginBottom: '0.6em',       
               letterSpacing: '-0.02em',    
             },
             h3: {
               color: '#111827',
               fontWeight: '600',           
-              fontSize: '1.25em',          // Más pequeño (20px)
-              marginTop: '1.2em',          // Menos espacio arriba
-              marginBottom: '0.6em',       // Menos espacio abajo
+              fontSize: '1.25em',          // 20px
+              marginTop: '1em',            
+              marginBottom: '0.5em',       
               letterSpacing: '-0.01em',    
+            },
+            h4: {
+              color: '#111827',
+              fontWeight: '600',           
+              fontSize: '1.125em',         // 18px
+              marginTop: '0.8em',          
+              marginBottom: '0.4em',       
+              letterSpacing: '0',    
             },
             p: {
               marginTop: '1.5em',          
