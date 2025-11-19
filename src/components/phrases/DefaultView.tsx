@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Clock, PlayCircle } from 'lucide-react';
 import VoiceRecorder from '../VoiceRecorder';
@@ -18,7 +19,7 @@ interface DefaultViewProps {
   isProcessing: boolean;
   language: string;
   category?: string;
-  showProgress: boolean; // Nueva prop para controlar la barra de progreso
+  showProgress: boolean;
 }
 
 export const DefaultView = ({
@@ -26,12 +27,11 @@ export const DefaultView = ({
   incrementCount,
   isDarkMode,
   isProcessing,
-  showProgress, // Recibe la nueva prop
+  showProgress,
 }: DefaultViewProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [resetRecorder, setResetRecorder] = useState(false);
 
-  // Verificar si no hay frases disponibles
   if (!phrases || phrases.length === 0) {
     return (
       <div className="text-center p-8">
@@ -42,7 +42,6 @@ export const DefaultView = ({
     );
   }
 
-  // Obtener la frase actual
   const currentPhrase = phrases[currentIndex];
 
   if (!currentPhrase) {
@@ -55,7 +54,6 @@ export const DefaultView = ({
     );
   }
 
-  // Función para avanzar a la siguiente frase
   const handleNext = () => {
     if (currentIndex < phrases.length - 1 && !isProcessing) {
       setCurrentIndex(currentIndex + 1);
@@ -66,7 +64,6 @@ export const DefaultView = ({
     }
   };
 
-  // Función para retroceder a la frase anterior
   const handlePrevious = () => {
     if (currentIndex > 0 && !isProcessing) {
       setCurrentIndex(currentIndex - 1);
@@ -74,13 +71,33 @@ export const DefaultView = ({
     }
   };
 
-  // Función para reproducir la frase actual
   const handleSpeak = async (rate: number = 1) => {
     if ('speechSynthesis' in window && !isProcessing) {
       try {
         const utterance = new SpeechSynthesisUtterance(currentPhrase.targetText);
         utterance.lang = 'en-US';
-        utterance.rate = rate;
+
+        // Tune parameters for a more natural-sounding american voice
+        utterance.rate = rate * 0.95;
+        utterance.pitch = 1.02;
+        utterance.volume = 1;
+
+        // Attempt to select a high-quality en-US voice if available
+        const selectPreferredVoice = () => {
+          const voices = window.speechSynthesis.getVoices() || [];
+          const preferred = voices.find((v) =>
+            v.lang && v.lang.toLowerCase().startsWith('en-us') && /google|microsoft|samantha|joanna|aria|alloy|daniel|amy|ivy|justin|matthew/i.test(v.name)
+          ) || voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en-us'));
+
+          if (preferred) utterance.voice = preferred;
+        };
+
+        // getVoices() can be async; try now and again when voices change
+        selectPreferredVoice();
+        if (!utterance.voice) {
+          window.speechSynthesis.onvoiceschanged = () => selectPreferredVoice();
+        }
+
         window.speechSynthesis.speak(utterance);
       } catch (error) {
         console.error('Error al reproducir:', error);
@@ -90,13 +107,13 @@ export const DefaultView = ({
 
   return (
     <div className="text-center space-y-6">
-      {/* Botones de navegación */}
+      {/* Navigation buttons */}
       <div className="flex justify-center space-x-4 mb-4">
         <button
           onClick={handlePrevious}
           disabled={currentIndex === 0 || isProcessing}
           className={`px-4 py-2 ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           Previous
@@ -105,14 +122,13 @@ export const DefaultView = ({
           onClick={handleNext}
           disabled={currentIndex === phrases.length - 1 || isProcessing}
           className={`px-4 py-2 ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           Next
         </button>
       </div>
 
-      {/* Barra de progreso */}
       {showProgress && (
         <div className="mb-4">
           <PhraseProgress
@@ -123,27 +139,25 @@ export const DefaultView = ({
         </div>
       )}
 
-      {/* Frase actual */}
       <div className="mb-4">
-        <h2
-          className={`text-2xl font-bold mb-2 ${
-            isDarkMode ? 'text-green-300' : 'text-green-800'
-          }`}
-        >
+        <h2 className={`text-2xl font-bold mb-2 ${
+          isDarkMode ? 'text-green-400' : 'text-green-600'
+        }`}>
           {currentPhrase.targetText}
         </h2>
-        <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>
+        <p className={`${
+          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+        }`}>
           {currentPhrase.translatedText}
         </p>
       </div>
 
-      {/* Botones de interacción */}
       <div className="flex justify-center space-x-1">
         <button
           onClick={() => handleSpeak(1)}
           disabled={isProcessing}
           className={`flex items-center justify-center px-2 py-1 text-sm min-w-[50px] md:px-4 md:py-2 md:text-base md:min-w-[70px] ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <PlayCircle className="mr-1 w-4 h-4 md:mr-2 md:w-5 md:h-5" />
@@ -153,7 +167,7 @@ export const DefaultView = ({
           onClick={() => handleSpeak(0.4)}
           disabled={isProcessing}
           className={`flex items-center justify-center px-2 py-1 text-sm min-w-[50px] md:px-4 md:py-2 md:text-base md:min-w-[70px] ${
-            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-800 hover:bg-green-600'
+            isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-700 hover:bg-green-600'
           } text-white rounded disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Clock className="mr-1 w-4 h-4 md:mr-2 md:w-5 md:h-5" />
@@ -167,9 +181,7 @@ export const DefaultView = ({
         />
       </div>
 
-      {/* Resultado de la comparación */}
       <div id="similarity-result" className="h-8">
-        {/* El resultado de la comparación aparecerá aquí */}
       </div>
     </div>
   );

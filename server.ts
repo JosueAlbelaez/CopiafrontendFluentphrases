@@ -10,6 +10,7 @@ import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { sendPasswordResetEmail, sendVerificationEmail } from './src/lib/utils/email';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -20,6 +21,33 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
+
+// Definición del modelo BlogPost
+const blogPostSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  image_url: String,
+  summary: String,
+  reading_time: Number,
+  category: String,
+  created_at: { 
+    type: Date, 
+    default: Date.now,
+    required: true 
+  },
+  updated_at: { 
+    type: Date, 
+    default: Date.now,
+    required: true 
+  }
+}, {
+  timestamps: { 
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+  }
+});
+
+const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 
 // Categorías gratuitas
 const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
@@ -371,6 +399,33 @@ app.post('/api/create-preference', async (req: Request, res: Response) => {
   }
 });
 
+// Rutas del Blog
+app.get('/api/blog', async (_req: Request, res: Response) => {
+  try {
+    const posts = await BlogPost.find().sort({ created_at: -1 });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los posts' });
+  }
+});
+
+// Nueva ruta para obtener un post específico
+app.get('/api/blog/:id', async (req: Request, res: Response) => {
+  try {
+    const post = await BlogPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: 'Post no encontrado' });
+    }
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el post' });
+  }
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+
+export default app;

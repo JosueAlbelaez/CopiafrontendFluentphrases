@@ -1,8 +1,11 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { emailValidator, passwordValidator } from '@/lib/validators';
 import axios from 'axios';
+
+export interface SignUpFormProps {
+  onAuthSuccess?: () => void;
+}
 
 export function SignUpForm() {
   const { toast } = useToast();
@@ -88,9 +91,14 @@ export function SignUpForm() {
 
       toast({
         title: "Registro exitoso",
-        description: "Te hemos enviado un correo de verificación. Por favor, revisa tu bandeja de entrada y sigue las instrucciones para activar tu cuenta.",
+        description: "¡Tu cuenta ha sido creada! Por favor revisa tu correo electrónico para verificar tu cuenta.",
       });
 
+      // Esperar 3 segundos antes de redirigir
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 6000);
+      
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast({

@@ -56,6 +56,41 @@ export interface Database {
           updated_at?: string
         }
       }
+      blog_posts: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          image_url: string
+          summary: string
+          reading_time: number
+          category: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          content: string
+          image_url: string
+          summary: string
+          reading_time?: number
+          category: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          content?: string
+          image_url?: string
+          summary?: string
+          reading_time?: number
+          category?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
       phrases: {
         Row: {
           id: string

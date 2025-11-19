@@ -58,7 +58,7 @@ export function PricingPlans() {
 
       if (!token || !user) {
         console.error("No hay token o usuario en localStorage");
-        throw new Error("Debes iniciar sesión para suscribirte");
+        throw new Error("Regístrate o inicia sesión, luego HAZTE PREMIUM");
       }
 
       console.log("Usuario autenticado:", JSON.parse(user));
