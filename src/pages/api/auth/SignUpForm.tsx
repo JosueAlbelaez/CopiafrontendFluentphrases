@@ -5,7 +5,7 @@ import { emailValidator, passwordValidator } from '@/lib/validators';
 import axios from 'axios';
 
 interface SignUpFormProps {
-  onAuthSuccess: () => void;
+  onAuthSuccess?: () => void;
 }
 
 export function SignUpForm({ onAuthSuccess }: SignUpFormProps) {
